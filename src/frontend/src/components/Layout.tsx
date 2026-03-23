@@ -12,22 +12,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import {
-  BarChart2,
   Bot,
   Brain,
-  Briefcase,
-  Building2,
   ChevronDown,
-  Database,
-  FolderOpen,
-  HelpCircle,
-  LayoutDashboard,
   LogOut,
-  Plug,
-  Radar,
   Search,
   Send,
-  Settings,
   User,
   X,
   Zap,
@@ -42,19 +32,6 @@ const navLinks = [
   { label: "Companies", to: "/companies" },
   { label: "Market Scout", to: "/market-scout" },
   { label: "API Keys", to: "/api-keys" },
-];
-
-const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, to: "/" },
-  { label: "Companies", icon: Building2, to: "/companies" },
-  { label: "Market Scout", icon: Radar, to: "/market-scout" },
-  { label: "Analytics", icon: BarChart2, to: "/analytics" },
-  { label: "Open Roles", icon: Briefcase, to: "/open-roles" },
-  { label: "Projects", icon: FolderOpen, to: "/" },
-  { label: "Datasets", icon: Database, to: "/" },
-  { label: "Integrations", icon: Plug, to: "/" },
-  { label: "Settings", icon: Settings, to: "/" },
-  { label: "Help", icon: HelpCircle, to: "/" },
 ];
 
 const EXACT_ROUTES = [
@@ -350,146 +327,100 @@ export default function Layout() {
   const avatarUrl = profile?.avatarUrl?.getDirectURL?.() ?? "";
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <aside className="w-60 flex-shrink-0 bg-sidebar flex flex-col fixed left-0 top-0 h-full z-30">
-        <div className="h-16 flex items-center px-5 border-b border-sidebar-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-              <Brain size={18} className="text-white" />
-            </div>
-            <div className="leading-tight">
-              <p className="text-white text-xs font-bold tracking-wide">
-                DREAMCRAFTER
-              </p>
-              <p className="text-white/40 text-[10px] font-medium tracking-wider">
-                INTELLIGENCE
-              </p>
-            </div>
+    <div className="flex flex-col h-screen overflow-hidden bg-background">
+      <header className="h-16 bg-card border-b border-border fixed top-0 left-0 right-0 z-20 flex items-center px-6 gap-4">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 mr-4 shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+            <Brain size={18} className="text-white" />
+          </div>
+          <div className="leading-tight hidden sm:block">
+            <p className="text-foreground text-xs font-bold tracking-wide">
+              DREAMCRAFTER
+            </p>
+            <p className="text-muted-foreground text-[10px] font-medium tracking-wider">
+              INTELLIGENCE
+            </p>
           </div>
         </div>
 
         <nav
-          className="flex-1 py-4 px-3 overflow-y-auto"
-          aria-label="Sidebar navigation"
+          className="flex items-center gap-0.5 flex-1 overflow-x-auto"
+          aria-label="Top navigation"
         >
-          <ul className="space-y-0.5">
-            {sidebarItems.map((item) => {
-              const isActive =
-                isRouteActive(currentPath, item.to) &&
-                (item.to !== "/" || item.label === "Dashboard") &&
-                (item.to !== "/" ||
-                  ![
-                    "Projects",
-                    "Datasets",
-                    "Integrations",
-                    "Settings",
-                    "Help",
-                  ].includes(item.label));
-              const Icon = item.icon;
-              return (
-                <li key={item.label}>
-                  <Link
-                    to={item.to}
-                    data-ocid={`sidebar.${item.label.toLowerCase().replace(/\s+/g, "_")}.link`}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-sidebar-accent text-white"
-                        : "text-sidebar-foreground/60 hover:text-white hover:bg-sidebar-accent/50",
-                    )}
-                  >
-                    <Icon size={16} />
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </aside>
-
-      <div className="flex-1 ml-60 flex flex-col min-h-screen">
-        <header className="h-16 bg-card border-b border-border fixed top-0 left-60 right-0 z-20 flex items-center px-6 gap-4">
-          <nav
-            className="flex items-center gap-0.5 flex-1 overflow-x-auto"
-            aria-label="Top navigation"
-          >
-            {navLinks.map((link) => {
-              const isActive =
-                isRouteActive(currentPath, link.to) && link.to !== "/";
-              return (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  data-ocid={`nav.${link.label.toLowerCase().replace(/\s+/g, "_")}.link`}
-                  className={cn(
-                    "px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap",
-                    isActive
-                      ? "text-primary bg-accent"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              data-ocid="nav.search_input"
-              className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              aria-label="Search"
-            >
-              <Search size={16} />
-            </button>
-
-            <NotificationDropdown count={0} />
-
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                data-ocid="nav.profile.button"
-                className="flex items-center gap-2 pl-2 pr-2 py-1.5 rounded-lg hover:bg-muted transition-colors ml-1"
+          {navLinks.map((link) => {
+            const isActive =
+              isRouteActive(currentPath, link.to) && link.to !== "/";
+            return (
+              <Link
+                key={link.label}
+                to={link.to}
+                data-ocid={`nav.${link.label.toLowerCase().replace(/\s+/g, "_")}.link`}
+                className={cn(
+                  "px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap",
+                  isActive
+                    ? "text-primary bg-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                )}
               >
-                <Avatar className="w-7 h-7">
-                  {avatarUrl && (
-                    <AvatarImage src={avatarUrl} alt={displayName} />
-                  )}
-                  <AvatarFallback className="bg-primary text-white text-xs font-semibold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium text-foreground hidden sm:block max-w-28 truncate">
-                  {displayName}
-                </span>
-                <ChevronDown size={13} className="text-muted-foreground" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem asChild>
-                  <Link to="/profile" data-ocid="nav.profile.link">
-                    <User size={13} className="mr-2" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  data-ocid="nav.logout.button"
-                  className="text-destructive focus:text-destructive"
-                  onClick={clear}
-                >
-                  <LogOut size={13} className="mr-2" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-        <main className="flex-1 mt-16 overflow-y-auto">
-          <Outlet />
-        </main>
-      </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            data-ocid="nav.search_input"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            aria-label="Search"
+          >
+            <Search size={16} />
+          </button>
+
+          <NotificationDropdown count={0} />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              data-ocid="nav.profile.button"
+              className="flex items-center gap-2 pl-2 pr-2 py-1.5 rounded-lg hover:bg-muted transition-colors ml-1"
+            >
+              <Avatar className="w-7 h-7">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                <AvatarFallback className="bg-primary text-white text-xs font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium text-foreground hidden sm:block max-w-28 truncate">
+                {displayName}
+              </span>
+              <ChevronDown size={13} className="text-muted-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem asChild>
+                <Link to="/profile" data-ocid="nav.profile.link">
+                  <User size={13} className="mr-2" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                data-ocid="nav.logout.button"
+                className="text-destructive focus:text-destructive"
+                onClick={clear}
+              >
+                <LogOut size={13} className="mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+
+      <main className="flex-1 mt-16 overflow-y-auto">
+        <Outlet />
+      </main>
 
       <FloatingChatbot />
     </div>

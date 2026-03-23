@@ -90,13 +90,23 @@ export function useSaveUserProfile() {
       } else {
         avatarBlob = ExternalBlob.fromURL("");
       }
-      return actor.saveCallerUserProfile({
+      await actor.saveCallerUserProfile({
         displayName: params.displayName,
         email: params.email,
         avatarUrl: avatarBlob,
       });
+      return params;
     },
-    onSuccess: () => {
+    onSuccess: (params) => {
+      // Immediately populate the cache so the app transitions to the dashboard
+      // without waiting for a background refetch (which would briefly show null
+      // and put the user back on the onboarding screen).
+      queryClient.setQueryData(["userProfile"], {
+        displayName: params.displayName,
+        email: params.email,
+        avatarUrl: ExternalBlob.fromURL(params.avatarUrl ?? ""),
+      });
+      // Also invalidate so a fresh fetch happens in the background.
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
   });
