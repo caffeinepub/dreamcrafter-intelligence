@@ -5,15 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Activity,
   BarChart3,
+  Briefcase,
   Building2,
   Camera,
   CheckCircle,
   Copy,
   FileText,
   Loader2,
+  MapPin,
   Shield,
   User,
 } from "lucide-react";
@@ -37,6 +40,10 @@ export default function ProfilePage() {
 
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [location, setLocation] = useState("");
   const [avatarPreview, setAvatarPreview] = useState("");
   const [avatarBytes, setAvatarBytes] =
     useState<Uint8Array<ArrayBuffer> | null>(null);
@@ -145,8 +152,8 @@ export default function ProfilePage() {
         >
           <Card className="shadow-card border-border">
             <CardContent className="p-6">
-              <div className="flex items-center gap-5">
-                <div className="relative group">
+              <div className="flex items-start gap-5">
+                <div className="relative group shrink-0">
                   <Avatar className="w-20 h-20">
                     {displayedAvatar && (
                       <AvatarImage src={displayedAvatar} alt={effectiveName} />
@@ -190,7 +197,42 @@ export default function ProfilePage() {
                           {email || currentEmail}
                         </p>
                       )}
-                      <p className="text-xs text-muted-foreground/60 mt-0.5 truncate font-mono">
+                      {/* Extra profile details as chips */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {jobTitle && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs gap-1 px-2 py-0.5"
+                          >
+                            <Briefcase size={10} />
+                            {jobTitle}
+                          </Badge>
+                        )}
+                        {organization && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs gap-1 px-2 py-0.5"
+                          >
+                            <Building2 size={10} />
+                            {organization}
+                          </Badge>
+                        )}
+                        {location && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs gap-1 px-2 py-0.5"
+                          >
+                            <MapPin size={10} />
+                            {location}
+                          </Badge>
+                        )}
+                        {bio && (
+                          <p className="text-xs text-muted-foreground mt-1 w-full line-clamp-2">
+                            {bio}
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground/60 mt-1.5 truncate font-mono">
                         {principal.slice(0, 24)}...
                       </p>
                     </>
@@ -245,6 +287,73 @@ export default function ProfilePage() {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="jobTitle" className="text-sm font-medium">
+                    Job Title
+                    <span className="text-muted-foreground font-normal ml-1 text-xs">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="jobTitle"
+                    data-ocid="profile.jobtitle.input"
+                    placeholder="e.g. Senior Engineer"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="organization" className="text-sm font-medium">
+                    Company / Organization
+                    <span className="text-muted-foreground font-normal ml-1 text-xs">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="organization"
+                    data-ocid="profile.organization.input"
+                    placeholder="e.g. Acme Corp"
+                    value={organization}
+                    onChange={(e) => setOrganization(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="location" className="text-sm font-medium">
+                  Location
+                  <span className="text-muted-foreground font-normal ml-1 text-xs">
+                    (optional)
+                  </span>
+                </Label>
+                <Input
+                  id="location"
+                  data-ocid="profile.location.input"
+                  placeholder="City, Country"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="bio" className="text-sm font-medium">
+                  Bio
+                  <span className="text-muted-foreground font-normal ml-1 text-xs">
+                    (optional)
+                  </span>
+                </Label>
+                <Textarea
+                  id="bio"
+                  data-ocid="profile.bio.textarea"
+                  placeholder="Tell us about yourself..."
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  className="resize-none"
+                />
               </div>
 
               <div className="space-y-1.5">

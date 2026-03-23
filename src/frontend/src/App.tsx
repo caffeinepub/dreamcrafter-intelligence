@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   RouterProvider,
   createRootRoute,
@@ -27,6 +28,7 @@ const rootRoute = createRootRoute({
 function RootComponent() {
   const { identity, isInitializing } = useInternetIdentity();
   const { data: profile, isLoading: profileLoading } = useUserProfile();
+  const queryClient = useQueryClient();
 
   if (isInitializing) {
     return (
@@ -55,7 +57,13 @@ function RootComponent() {
   }
 
   if (profile === null || profile === undefined) {
-    return <OnboardingPage onComplete={() => {}} />;
+    return (
+      <OnboardingPage
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+        }}
+      />
+    );
   }
 
   return <Layout />;

@@ -312,9 +312,11 @@ actor {
 
   // ─── User profile functions ───────────────────────────────────────────────────
 
+  // Allow any authenticated (non-anonymous) caller to read their own profile.
+  // This is needed before the user has been assigned a role (e.g. during onboarding).
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile.UserProfile {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
+    if (caller.isAnonymous()) {
+      Runtime.trap("Unauthorized: Must be authenticated");
     };
     userProfiles.get(caller);
   };
@@ -326,9 +328,18 @@ actor {
     userProfiles.get(user);
   };
 
+  // Allow any authenticated caller to save their profile.
+  // Auto-registers new users with the #user role on first save.
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile.UserProfile) : async () {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
+    if (caller.isAnonymous()) {
+      Runtime.trap("Unauthorized: Must be authenticated");
+    };
+    // Auto-register as #user if not yet assigned any role
+    switch (accessControlState.userRoles.get(caller)) {
+      case (null) {
+        accessControlState.userRoles.add(caller, #user);
+      };
+      case (?_) {};
     };
     userProfiles.add(caller, profile);
   };
