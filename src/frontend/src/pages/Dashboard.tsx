@@ -23,7 +23,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { Status } from "../backend";
+import { Status__1 } from "../backend";
 import { useDashboardStats, useReports } from "../hooks/useQueries";
 
 const MOCK_TREND = [42, 55, 48, 71, 65, 83, 77, 94];
@@ -32,27 +32,27 @@ const WEEKS = ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"];
 const FALLBACK_REPORTS = [
   {
     name: "Acme Corp Competitive Analysis",
-    status: Status.completed,
+    status: Status__1.completed,
     date: BigInt(Date.now() - 86400000) * BigInt(1000000),
   },
   {
     name: "TechNova Market Entry Report",
-    status: Status.analyzing,
+    status: Status__1.analyzing,
     date: BigInt(Date.now() - 172800000) * BigInt(1000000),
   },
   {
     name: "Meridian Partners Risk Assessment",
-    status: Status.completed,
+    status: Status__1.completed,
     date: BigInt(Date.now() - 259200000) * BigInt(1000000),
   },
   {
     name: "BlueOak Financials Deep Dive",
-    status: Status.analyzing,
+    status: Status__1.analyzing,
     date: BigInt(Date.now() - 345600000) * BigInt(1000000),
   },
   {
     name: "Stellar Dynamics Sector Report",
-    status: Status.completed,
+    status: Status__1.completed,
     date: BigInt(Date.now() - 432000000) * BigInt(1000000),
   },
 ];
@@ -295,12 +295,12 @@ export default function DashboardPage() {
                           <Badge
                             className={cn(
                               "text-[10px] font-semibold px-2 py-0.5 rounded-full border-0",
-                              report.status === Status.completed
+                              report.status === Status__1.completed
                                 ? "bg-success/10 text-success"
                                 : "bg-primary/10 text-primary",
                             )}
                           >
-                            {report.status === Status.completed
+                            {report.status === Status__1.completed
                               ? "Completed"
                               : "Analyzing"}
                           </Badge>

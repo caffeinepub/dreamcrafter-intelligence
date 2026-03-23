@@ -49,10 +49,24 @@ export const DashboardEntry = IDL.Record({
 });
 export const Status = IDL.Variant({
   'completed' : IDL.Null,
+  'failed' : IDL.Null,
+  'running' : IDL.Null,
+});
+export const ScoutResult = IDL.Record({
+  'status' : Status,
+  'features' : IDL.Vec(IDL.Text),
+  'summary' : IDL.Text,
+  'queries' : IDL.Vec(IDL.Text),
+  'timestamp' : Time,
+  'companyName' : IDL.Text,
+  'sources' : IDL.Vec(IDL.Text),
+});
+export const Status__1 = IDL.Variant({
+  'completed' : IDL.Null,
   'analyzing' : IDL.Null,
 });
 export const Report = IDL.Record({
-  'status' : Status,
+  'status' : Status__1,
   'date' : Time,
   'name' : IDL.Text,
 });
@@ -93,7 +107,9 @@ export const idlService = IDL.Service({
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getDashboardStats' : IDL.Func([], [DashboardEntry], ['query']),
+  'getLatestScout' : IDL.Func([IDL.Text], [IDL.Opt(ScoutResult)], ['query']),
   'getReportsForCaller' : IDL.Func([], [IDL.Vec(Report)], ['query']),
+  'getScoutHistory' : IDL.Func([], [IDL.Vec(ScoutResult)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -126,6 +142,7 @@ export const idlService = IDL.Service({
   'regenerateApiKeyForCaller' : IDL.Func([], [IDL.Text], []),
   'saveCallerUsageStats' : IDL.Func([UserUsageStats], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'saveScoutResult' : IDL.Func([ScoutResult], [], []),
 });
 
 export const idlInitArgs = [];
@@ -172,10 +189,24 @@ export const idlFactory = ({ IDL }) => {
   });
   const Status = IDL.Variant({
     'completed' : IDL.Null,
+    'failed' : IDL.Null,
+    'running' : IDL.Null,
+  });
+  const ScoutResult = IDL.Record({
+    'status' : Status,
+    'features' : IDL.Vec(IDL.Text),
+    'summary' : IDL.Text,
+    'queries' : IDL.Vec(IDL.Text),
+    'timestamp' : Time,
+    'companyName' : IDL.Text,
+    'sources' : IDL.Vec(IDL.Text),
+  });
+  const Status__1 = IDL.Variant({
+    'completed' : IDL.Null,
     'analyzing' : IDL.Null,
   });
   const Report = IDL.Record({
-    'status' : Status,
+    'status' : Status__1,
     'date' : Time,
     'name' : IDL.Text,
   });
@@ -216,7 +247,9 @@ export const idlFactory = ({ IDL }) => {
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getDashboardStats' : IDL.Func([], [DashboardEntry], ['query']),
+    'getLatestScout' : IDL.Func([IDL.Text], [IDL.Opt(ScoutResult)], ['query']),
     'getReportsForCaller' : IDL.Func([], [IDL.Vec(Report)], ['query']),
+    'getScoutHistory' : IDL.Func([], [IDL.Vec(ScoutResult)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -249,6 +282,7 @@ export const idlFactory = ({ IDL }) => {
     'regenerateApiKeyForCaller' : IDL.Func([], [IDL.Text], []),
     'saveCallerUsageStats' : IDL.Func([UserUsageStats], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'saveScoutResult' : IDL.Func([ScoutResult], [], []),
   });
 };
 

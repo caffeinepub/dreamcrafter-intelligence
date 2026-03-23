@@ -22,8 +22,20 @@ export interface DashboardEntry {
   'activeAnalyses' : bigint,
 }
 export type ExternalBlob = Uint8Array;
-export interface Report { 'status' : Status, 'date' : Time, 'name' : string }
+export interface Report { 'status' : Status__1, 'date' : Time, 'name' : string }
+export interface ScoutResult {
+  'status' : Status,
+  'features' : Array<string>,
+  'summary' : string,
+  'queries' : Array<string>,
+  'timestamp' : Time,
+  'companyName' : string,
+  'sources' : Array<string>,
+}
 export type Status = { 'completed' : null } |
+  { 'failed' : null } |
+  { 'running' : null };
+export type Status__1 = { 'completed' : null } |
   { 'analyzing' : null };
 export type Time = bigint;
 export interface UserProfile {
@@ -75,7 +87,9 @@ export interface _SERVICE {
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getDashboardStats' : ActorMethod<[], DashboardEntry>,
+  'getLatestScout' : ActorMethod<[string], [] | [ScoutResult]>,
   'getReportsForCaller' : ActorMethod<[], Array<Report>>,
+  'getScoutHistory' : ActorMethod<[], Array<ScoutResult>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'http_request' : ActorMethod<
     [
@@ -98,6 +112,7 @@ export interface _SERVICE {
   'regenerateApiKeyForCaller' : ActorMethod<[], string>,
   'saveCallerUsageStats' : ActorMethod<[UserUsageStats], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'saveScoutResult' : ActorMethod<[ScoutResult], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

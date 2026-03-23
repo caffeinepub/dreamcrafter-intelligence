@@ -3,6 +3,7 @@ import type {
   ApiKey,
   DashboardEntry,
   Report,
+  ScoutResult,
   UserUsageStats,
 } from "../backend";
 import { ExternalBlob } from "../backend";
@@ -163,6 +164,32 @@ export function useRegenerateApiKey() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["callerApiKey"] });
+    },
+  });
+}
+
+export function useScoutHistory() {
+  const { actor, isFetching } = useActor();
+  return useQuery<ScoutResult[]>({
+    queryKey: ["scoutHistory"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getScoutHistory();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSaveScoutResult() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (result: ScoutResult) => {
+      if (!actor) throw new Error("No actor");
+      return actor.saveScoutResult(result);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scoutHistory"] });
     },
   });
 }

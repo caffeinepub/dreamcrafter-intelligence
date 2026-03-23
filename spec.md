@@ -1,27 +1,25 @@
 # Dreamcrafter Intelligence
 
 ## Current State
-Full SaaS platform with auth, profiles, API keys, reports, and browser API. No company database page exists yet.
+Full SaaS platform with Companies page (150+ companies with search/filter), Analytics page (charts), Open Roles page (job listings), Market Scout AI agent, and a Login page with a split-panel layout.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Company Database page (`/companies`) with 500+ representative companies (seeded in frontend as static data to cover major global firms across industries)
-- Search bar with autocomplete (name, industry, country)
-- Filter sidebar/dropdowns: by Industry, by Country
-- Company cards showing: Name, Industry, Country, Description, "Visit Official Website" button
-- Navigation link "Companies" in navbar
-- Route `/companies` in App.tsx
+- Company Detail page (`/company/:name`) with 4 tabs: Overview, Analytics, Open Roles, Market Scout
+- Clicking a company card in Companies page navigates to that detail page
+- Login page: animated gradient background with color and motion
 
 ### Modify
-- App.tsx: add `/companies` route
-- Layout/Navbar: add "Companies" nav link
+- Companies.tsx: make CompanyCard clickable (navigate to detail page)
+- Login.tsx: replace static background with animated gradient/particles
+- App.tsx: add `/company/:name` route
 
 ### Remove
-- Nothing
+- Nothing removed
 
 ## Implementation Plan
-1. Create `src/frontend/src/data/companies.ts` with 500+ company entries (name, website, industry, country, description)
-2. Create `src/frontend/src/pages/Companies.tsx` with search autocomplete, industry/country filters, company cards with Visit Website button
-3. Update App.tsx to add companies route
-4. Update Layout/Navbar to include Companies nav item
+1. Create `CompanyDetail.tsx` — tabbed page with Overview, Analytics, Open Roles, Market Scout sections pre-filled with the company name
+2. Update `Companies.tsx` — wrap card in a click handler that navigates to `/company/:companyName`
+3. Update `App.tsx` — add companyDetailRoute
+4. Update `Login.tsx` — animated gradient background (CSS keyframes + motion)

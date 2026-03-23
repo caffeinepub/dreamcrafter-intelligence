@@ -9,8 +9,9 @@ import {
 import { cn } from "@/lib/utils";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import {
-  Bell,
+  BarChart2,
   Brain,
+  Briefcase,
   Building2,
   ChevronDown,
   Database,
@@ -19,30 +20,53 @@ import {
   LayoutDashboard,
   LogOut,
   Plug,
+  Radar,
   Search,
   Settings,
   User,
 } from "lucide-react";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useUserProfile } from "../hooks/useQueries";
+import NotificationDropdown from "./NotificationDropdown";
 
 const navLinks = [
-  { label: "Home", to: "/" },
   { label: "Analysis Path", to: "/analysis-path" },
   { label: "API Keys", to: "/api-keys" },
   { label: "Companies", to: "/companies" },
-  { label: "Reports", to: "/" },
+  { label: "Market Scout", to: "/market-scout" },
+  { label: "Analytics", to: "/analytics" },
+  { label: "Open Roles", to: "/open-roles" },
 ];
 
 const sidebarItems = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/" },
   { label: "Companies", icon: Building2, to: "/companies" },
+  { label: "Market Scout", icon: Radar, to: "/market-scout" },
+  { label: "Analytics", icon: BarChart2, to: "/analytics" },
+  { label: "Open Roles", icon: Briefcase, to: "/open-roles" },
   { label: "Projects", icon: FolderOpen, to: "/" },
   { label: "Datasets", icon: Database, to: "/" },
   { label: "Integrations", icon: Plug, to: "/" },
   { label: "Settings", icon: Settings, to: "/" },
   { label: "Help", icon: HelpCircle, to: "/" },
 ];
+
+const EXACT_ROUTES = [
+  "/",
+  "/analysis-path",
+  "/api-keys",
+  "/companies",
+  "/market-scout",
+  "/analytics",
+  "/open-roles",
+  "/profile",
+];
+
+function isRouteActive(currentPath: string, to: string): boolean {
+  if (to === "/") return currentPath === "/";
+  if (EXACT_ROUTES.includes(to)) return currentPath === to;
+  return currentPath.startsWith(to);
+}
 
 export default function Layout() {
   const { clear, identity } = useInternetIdentity();
@@ -77,22 +101,29 @@ export default function Layout() {
           </div>
         </div>
 
-        <nav className="flex-1 py-4 px-3" aria-label="Sidebar navigation">
+        <nav
+          className="flex-1 py-4 px-3 overflow-y-auto"
+          aria-label="Sidebar navigation"
+        >
           <ul className="space-y-0.5">
             {sidebarItems.map((item) => {
-              const isDash = item.label === "Dashboard";
-              const isCompanies = item.label === "Companies";
-              const isActive = isDash
-                ? currentPath === "/"
-                : isCompanies
-                  ? currentPath === "/companies"
-                  : currentPath === item.to && item.to !== "/";
+              const isActive =
+                isRouteActive(currentPath, item.to) &&
+                (item.to !== "/" || item.label === "Dashboard") &&
+                (item.to !== "/" ||
+                  ![
+                    "Projects",
+                    "Datasets",
+                    "Integrations",
+                    "Settings",
+                    "Help",
+                  ].includes(item.label));
               const Icon = item.icon;
               return (
                 <li key={item.label}>
                   <Link
                     to={item.to}
-                    data-ocid={`sidebar.${item.label.toLowerCase().replace(" ", "_")}.link`}
+                    data-ocid={`sidebar.${item.label.toLowerCase().replace(/\s+/g, "_")}.link`}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                       isActive
@@ -121,7 +152,6 @@ export default function Layout() {
               <p className="text-white text-xs font-medium truncate">
                 {displayName}
               </p>
-              <p className="text-white/40 text-[10px]">Active</p>
             </div>
           </div>
         </div>
@@ -130,27 +160,19 @@ export default function Layout() {
       <div className="flex-1 ml-60 flex flex-col min-h-screen">
         <header className="h-16 bg-card border-b border-border fixed top-0 left-60 right-0 z-20 flex items-center px-6 gap-4">
           <nav
-            className="flex items-center gap-0.5 flex-1"
+            className="flex items-center gap-0.5 flex-1 overflow-x-auto"
             aria-label="Top navigation"
           >
             {navLinks.map((link) => {
               const isActive =
-                link.label === "Home"
-                  ? currentPath === "/"
-                  : link.label === "Analysis Path"
-                    ? currentPath === "/analysis-path"
-                    : link.label === "API Keys"
-                      ? currentPath === "/api-keys"
-                      : link.label === "Companies"
-                        ? currentPath === "/companies"
-                        : false;
+                isRouteActive(currentPath, link.to) && link.to !== "/";
               return (
                 <Link
                   key={link.label}
                   to={link.to}
-                  data-ocid={`nav.${link.label.toLowerCase().replace(" ", "_")}.link`}
+                  data-ocid={`nav.${link.label.toLowerCase().replace(/\s+/g, "_")}.link`}
                   className={cn(
-                    "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                    "px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap",
                     isActive
                       ? "text-primary bg-accent"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted",
@@ -172,17 +194,7 @@ export default function Layout() {
               <Search size={16} />
             </button>
 
-            <button
-              type="button"
-              data-ocid="nav.notification.button"
-              className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              aria-label="Notifications"
-            >
-              <Bell size={16} />
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-destructive text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                3
-              </span>
-            </button>
+            <NotificationDropdown count={7} />
 
             <DropdownMenu>
               <DropdownMenuTrigger

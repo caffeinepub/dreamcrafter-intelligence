@@ -13,6 +13,8 @@ import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import Blob "mo:core/Blob";
 
+
+
 actor {
   module ApiKey {
     type ApiKeyRaw = {
@@ -106,6 +108,31 @@ actor {
     };
   };
 
+  module ScoutResult {
+    public type Status = {
+      #completed;
+      #running;
+      #failed;
+    };
+
+    public type ScoutResult = {
+      companyName : Text;
+      queries : [Text];
+      sources : [Text];
+      features : [Text];
+      summary : Text;
+      timestamp : Time.Time;
+      status : Status;
+    };
+
+    public func compareByCompanyAndTime(a : ScoutResult, b : ScoutResult) : Order.Order {
+      switch (Text.compare(a.companyName, b.companyName)) {
+        case (#equal) { Int.compare(a.timestamp, b.timestamp) };
+        case (other) { other };
+      };
+    };
+  };
+
   // Actor state
   let originalUserProfiles = Map.empty<Principal, { displayName : Text }>();
   let originalApiKeys = Map.empty<Principal, List.List<{ name : Text; createdDate : Time.Time; isActive : Bool }>>();
@@ -129,6 +156,7 @@ actor {
   };
   let userPrimaryApiKeys = Map.empty<Principal, Text>();
   let apiKeyLookup = Map.empty<Text, Principal>();
+  let scoutResults = Map.empty<Principal, List.List<ScoutResult.ScoutResult>>();
 
   // Access control state
   let accessControlState = AccessControl.initState();
@@ -408,6 +436,53 @@ actor {
     userUsageStats.get(caller);
   };
 
+  // ─── Market Scout functionality ───────────────────────────────────────────────
+
+  public shared ({ caller }) func saveScoutResult(result : ScoutResult.ScoutResult) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can save scout results");
+    };
+    let currentResults = switch (scoutResults.get(caller)) {
+      case (null) { List.empty<ScoutResult.ScoutResult>() };
+      case (?existing) { existing };
+    };
+    currentResults.add(result);
+    scoutResults.add(caller, currentResults);
+  };
+
+  public query ({ caller }) func getScoutHistory() : async [ScoutResult.ScoutResult] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can view their scout history");
+    };
+    switch (scoutResults.get(caller)) {
+      case (null) { [] };
+      case (?scouts) { scouts.toArray() };
+    };
+  };
+
+  public query ({ caller }) func getLatestScout(companyName : Text) : async ?ScoutResult.ScoutResult {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can get latest scout");
+    };
+    switch (scoutResults.get(caller)) {
+      case (null) { null };
+      case (?results) {
+        var latest : ?ScoutResult.ScoutResult = null;
+        for (result in results.values()) {
+          if (result.companyName == companyName) {
+            latest := switch (latest) {
+              case (null) { ?result };
+              case (?current) {
+                if (result.timestamp > current.timestamp) { ?result } else { ?current };
+              };
+            };
+          };
+        };
+        latest;
+      };
+    };
+  };
+
   // ─── HTTP API endpoint ────────────────────────────────────────────────────────
 
   public query func http_request(request : {
@@ -421,7 +496,6 @@ actor {
     body : Blob;
   } {
     let url = request.url;
-
     let urlParts = Text.fromIter(url.toIter()).split(#char '?');
     let path = switch (urlParts.next()) {
       case (?p) { p };

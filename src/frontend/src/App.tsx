@@ -9,11 +9,15 @@ import Layout from "./components/Layout";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useUserProfile } from "./hooks/useQueries";
 import AnalysisPathPage from "./pages/AnalysisPath";
+import AnalyticsPage from "./pages/Analytics";
 import ApiKeysPage from "./pages/ApiKeys";
 import CompaniesPage from "./pages/Companies";
+import CompanyDetailPage from "./pages/CompanyDetail";
 import DashboardPage from "./pages/Dashboard";
 import LoginPage from "./pages/Login";
+import MarketScoutPage from "./pages/MarketScout";
 import OnboardingPage from "./pages/Onboarding";
+import OpenRolesPage from "./pages/OpenRoles";
 import ProfilePage from "./pages/Profile";
 
 const rootRoute = createRootRoute({
@@ -82,6 +86,26 @@ const companiesRoute = createRoute({
   path: "/companies",
   component: CompaniesPage,
 });
+const companyDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/company/$companyName",
+  component: CompanyDetailPage,
+});
+const marketScoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/market-scout",
+  component: MarketScoutPage,
+});
+const analyticsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/analytics",
+  component: AnalyticsPage,
+});
+const openRolesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/open-roles",
+  component: OpenRolesPage,
+});
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -89,6 +113,10 @@ const routeTree = rootRoute.addChildren([
   apiKeysRoute,
   profileRoute,
   companiesRoute,
+  companyDetailRoute,
+  marketScoutRoute,
+  analyticsRoute,
+  openRolesRoute,
 ]);
 const router = createRouter({ routeTree });
 

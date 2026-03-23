@@ -14,17 +14,6 @@ export class ExternalBlob {
     static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
     withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
 }
-export interface DashboardEntry {
-    companiesTracked: bigint;
-    dataIngestion: bigint;
-    apiRequestCount: bigint;
-    activeAnalyses: bigint;
-}
-export interface ApiKey {
-    name: string;
-    createdDate: Time;
-    isActive: boolean;
-}
 export type Time = bigint;
 export interface UserUsageStats {
     reportsGenerated: bigint;
@@ -32,16 +21,41 @@ export interface UserUsageStats {
     apiCallCount: bigint;
 }
 export interface Report {
-    status: Status;
+    status: Status__1;
     date: Time;
     name: string;
+}
+export interface ApiKey {
+    name: string;
+    createdDate: Time;
+    isActive: boolean;
+}
+export interface ScoutResult {
+    status: Status;
+    features: Array<string>;
+    summary: string;
+    queries: Array<string>;
+    timestamp: Time;
+    companyName: string;
+    sources: Array<string>;
 }
 export interface UserProfile {
     displayName: string;
     email: string;
     avatarUrl: ExternalBlob;
 }
+export interface DashboardEntry {
+    companiesTracked: bigint;
+    dataIngestion: bigint;
+    apiRequestCount: bigint;
+    activeAnalyses: bigint;
+}
 export enum Status {
+    completed = "completed",
+    failed = "failed",
+    running = "running"
+}
+export enum Status__1 {
     completed = "completed",
     analyzing = "analyzing"
 }
@@ -63,7 +77,9 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getDashboardStats(): Promise<DashboardEntry>;
+    getLatestScout(companyName: string): Promise<ScoutResult | null>;
     getReportsForCaller(): Promise<Array<Report>>;
+    getScoutHistory(): Promise<Array<ScoutResult>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     http_request(request: {
         url: string;
@@ -86,4 +102,5 @@ export interface backendInterface {
     regenerateApiKeyForCaller(): Promise<string>;
     saveCallerUsageStats(stats: UserUsageStats): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    saveScoutResult(result: ScoutResult): Promise<void>;
 }

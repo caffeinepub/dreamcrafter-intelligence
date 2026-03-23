@@ -8,11 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useNavigate } from "@tanstack/react-router";
 import { Building2, ExternalLink, Globe, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { companies, countries, industries } from "../data/companies";
 import type { Company } from "../data/companies";
+import { companies, countries, industries } from "../data/companies";
 
 const industryColors: Record<string, string> = {
   Technology: "bg-blue-500/15 text-blue-400 border-blue-500/30",
@@ -70,7 +71,15 @@ function getFlag(country: string) {
   return countryFlags[country] ?? "🌍";
 }
 
-function CompanyCard({ company, index }: { company: Company; index: number }) {
+function CompanyCard({
+  company,
+  index,
+  onClick,
+}: {
+  company: Company;
+  index: number;
+  onClick: () => void;
+}) {
   return (
     <motion.article
       data-ocid={`companies.item.${index + 1}`}
@@ -78,7 +87,8 @@ function CompanyCard({ company, index }: { company: Company; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
-      className="bg-card border border-border rounded-xl p-5 flex flex-col gap-3 hover:border-primary/40 transition-colors group"
+      onClick={onClick}
+      className="bg-card border border-border rounded-xl p-5 flex flex-col gap-3 hover:border-primary/40 transition-colors group cursor-pointer"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -113,6 +123,7 @@ function CompanyCard({ company, index }: { company: Company; index: number }) {
         target="_blank"
         rel="noopener noreferrer"
         data-ocid={`companies.link.${index + 1}`}
+        onClick={(e) => e.stopPropagation()}
       >
         <Button
           variant="outline"
@@ -124,11 +135,16 @@ function CompanyCard({ company, index }: { company: Company; index: number }) {
           <ExternalLink size={10} className="ml-auto" />
         </Button>
       </a>
+
+      <p className="text-xs text-primary/70 text-center group-hover:text-primary transition-colors">
+        View Details →
+      </p>
     </motion.article>
   );
 }
 
 export default function CompaniesPage() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [industryFilter, setIndustryFilter] = useState("all");
   const [countryFilter, setCountryFilter] = useState("all");
@@ -174,7 +190,6 @@ export default function CompaniesPage() {
     inputRef.current?.blur();
   }
 
-  // Close suggestions on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (
@@ -202,7 +217,8 @@ export default function CompaniesPage() {
             </h1>
           </div>
           <p className="text-muted-foreground text-sm ml-12">
-            Search and explore global companies across industries and markets.
+            Search and explore global companies. Click any card to view
+            Analytics, Open Roles, and Market Scout.
           </p>
         </div>
       </div>
@@ -210,7 +226,6 @@ export default function CompaniesPage() {
       <div className="max-w-6xl mx-auto px-6 py-6">
         {/* Search + Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          {/* Search with autocomplete */}
           <div className="relative flex-1">
             <Search
               size={15}
@@ -266,7 +281,6 @@ export default function CompaniesPage() {
             </AnimatePresence>
           </div>
 
-          {/* Industry filter */}
           <Select value={industryFilter} onValueChange={setIndustryFilter}>
             <SelectTrigger
               data-ocid="companies.industry.select"
@@ -284,7 +298,6 @@ export default function CompaniesPage() {
             </SelectContent>
           </Select>
 
-          {/* Country filter */}
           <Select value={countryFilter} onValueChange={setCountryFilter}>
             <SelectTrigger
               data-ocid="companies.country.select"
@@ -324,13 +337,11 @@ export default function CompaniesPage() {
               onClick={clearFilters}
               className="gap-1.5 text-muted-foreground hover:text-foreground text-xs"
             >
-              <X size={12} />
-              Clear filters
+              <X size={12} /> Clear filters
             </Button>
           )}
         </div>
 
-        {/* Active filter badges */}
         {hasFilters && (
           <div className="flex flex-wrap gap-2 mb-5">
             {query.trim() && (
@@ -352,7 +363,6 @@ export default function CompaniesPage() {
           </div>
         )}
 
-        {/* Grid */}
         {filtered.length > 0 ? (
           <motion.div
             layout
@@ -360,7 +370,17 @@ export default function CompaniesPage() {
           >
             <AnimatePresence mode="popLayout">
               {filtered.map((company, i) => (
-                <CompanyCard key={company.name} company={company} index={i} />
+                <CompanyCard
+                  key={company.name}
+                  company={company}
+                  index={i}
+                  onClick={() =>
+                    navigate({
+                      to: "/company/$companyName",
+                      params: { companyName: company.name },
+                    })
+                  }
+                />
               ))}
             </AnimatePresence>
           </motion.div>
