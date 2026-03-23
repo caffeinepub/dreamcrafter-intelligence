@@ -31,7 +31,7 @@ import NotificationDropdown from "./NotificationDropdown";
 const navLinks = [
   { label: "Companies", to: "/companies" },
   { label: "Market Scout", to: "/market-scout" },
-  { label: "API Keys", to: "/api-keys" },
+  { label: "Scout History", to: "/scout-history" },
 ];
 
 const EXACT_ROUTES = [
@@ -40,6 +40,7 @@ const EXACT_ROUTES = [
   "/api-keys",
   "/companies",
   "/market-scout",
+  "/scout-history",
   "/analytics",
   "/open-roles",
   "/profile",

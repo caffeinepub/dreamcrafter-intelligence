@@ -23,6 +23,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { Status__1 } from "../backend";
 import { useDashboardStats, useReports } from "../hooks/useQueries";
 
@@ -66,6 +67,40 @@ function formatDate(ts: bigint) {
   });
 }
 
+/** Animated counter hook — counts from 0 to `target` over `duration` ms */
+function useCountUp(target: number, duration = 900, delay = 0) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let startTime: number | null = null;
+    let rafId: number;
+    const timeout = setTimeout(() => {
+      const step = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        // Ease-out cubic
+        const eased = 1 - (1 - progress) ** 3;
+        setCount(eased * target);
+        if (progress < 1) rafId = requestAnimationFrame(step);
+      };
+      rafId = requestAnimationFrame(step);
+    }, delay);
+    return () => {
+      clearTimeout(timeout);
+      cancelAnimationFrame(rafId);
+    };
+  }, [target, duration, delay]);
+  return count;
+}
+
+function KpiValue({ value, isFloat }: { value: number; isFloat: boolean }) {
+  const animated = useCountUp(value, 900);
+  if (isFloat) {
+    return <>{animated.toFixed(2)}</>;
+  }
+  const rounded = Math.round(animated);
+  return <>{rounded > 999 ? rounded.toLocaleString() : rounded}</>;
+}
+
 function TrendChart() {
   const maxVal = Math.max(...MOCK_TREND);
   const minVal = Math.min(...MOCK_TREND);
@@ -81,6 +116,23 @@ function TrendChart() {
     .slice(1)
     .map((p) => `L${p}`)
     .join(" ")} L${W},${H} L0,${H} Z`;
+
+  const polyRef = useRef<SVGPolylineElement>(null);
+
+  useEffect(() => {
+    const el = polyRef.current;
+    if (!el) return;
+    const len = el.getTotalLength();
+    el.style.strokeDasharray = `${len}`;
+    el.style.strokeDashoffset = `${len}`;
+    // Trigger animation on next frame
+    requestAnimationFrame(() => {
+      el.style.transition =
+        "stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1) 0.3s";
+      el.style.strokeDashoffset = "0";
+    });
+  }, []);
+
   return (
     <div className="w-full">
       <svg
@@ -104,8 +156,15 @@ function TrendChart() {
             />
           </linearGradient>
         </defs>
-        <path d={areaPath} fill="url(#areaGrad)" />
+        <motion.path
+          d={areaPath}
+          fill="url(#areaGrad)"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+        />
         <polyline
+          ref={polyRef}
           points={pts.join(" ")}
           fill="none"
           stroke="oklch(0.511 0.214 254)"
@@ -138,6 +197,7 @@ export default function DashboardPage() {
       icon: Building2,
       change: "+12%",
       positive: true,
+      isFloat: false,
     },
     {
       label: "Active Analyses",
@@ -145,6 +205,7 @@ export default function DashboardPage() {
       icon: FlaskConical,
       change: "+5%",
       positive: true,
+      isFloat: false,
     },
     {
       label: "Data Ingestion (GB)",
@@ -152,6 +213,7 @@ export default function DashboardPage() {
       icon: HardDrive,
       change: "-3%",
       positive: false,
+      isFloat: true,
     },
     {
       label: "API Requests",
@@ -159,6 +221,7 @@ export default function DashboardPage() {
       icon: Activity,
       change: "+28%",
       positive: true,
+      isFloat: false,
     },
   ];
 
@@ -185,11 +248,21 @@ export default function DashboardPage() {
         {kpiCards.map((card, i) => (
           <motion.div
             key={card.label}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.06 }}
+            transition={{
+              duration: 0.4,
+              delay: i * 0.09,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            whileHover={{
+              y: -4,
+              boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+              transition: { duration: 0.2 },
+            }}
+            style={{ cursor: "default" }}
           >
-            <Card className="shadow-card border-border">
+            <Card className="shadow-card border-border h-full">
               <CardContent className="pt-5 pb-4 px-5">
                 <div className="flex items-start justify-between mb-3">
                   <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center">
@@ -213,9 +286,7 @@ export default function DashboardPage() {
                   <Skeleton className="h-7 w-20 mb-1" />
                 ) : (
                   <p className="text-2xl font-bold text-foreground">
-                    {typeof card.value === "number" && card.value > 999
-                      ? card.value.toLocaleString()
-                      : card.value}
+                    <KpiValue value={card.value} isFloat={card.isFloat} />
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -230,9 +301,9 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <motion.div
           className="lg:col-span-3"
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.2 }}
+          transition={{ duration: 0.45, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
         >
           <Card className="shadow-card border-border h-full">
             <CardHeader className="pb-3 px-5 pt-5">
@@ -275,9 +346,16 @@ export default function DashboardPage() {
                   </TableHeader>
                   <TableBody>
                     {displayReports.slice(0, 5).map((report, idx) => (
-                      <TableRow
+                      <motion.tr
                         key={report.name}
-                        className="border-border"
+                        className="border-b border-border transition-colors hover:bg-muted/30"
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: 0.5 + idx * 0.07,
+                          ease: "easeOut",
+                        }}
                         data-ocid={`dashboard.reports.item.${idx + 1}`}
                       >
                         <TableCell className="pl-5 py-3">
@@ -308,7 +386,7 @@ export default function DashboardPage() {
                         <TableCell className="py-3 pr-5 text-right text-xs text-muted-foreground">
                           {formatDate(report.date)}
                         </TableCell>
-                      </TableRow>
+                      </motion.tr>
                     ))}
                   </TableBody>
                 </Table>
@@ -319,9 +397,9 @@ export default function DashboardPage() {
 
         <motion.div
           className="lg:col-span-2"
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.28 }}
+          transition={{ duration: 0.45, delay: 0.46, ease: [0.22, 1, 0.36, 1] }}
         >
           <Card className="shadow-card border-border h-full">
             <CardHeader className="pb-2 px-5 pt-5">
@@ -340,14 +418,24 @@ export default function DashboardPage() {
             <CardContent className="px-5 pb-5">
               <TrendChart />
               <div className="mt-3 grid grid-cols-2 gap-3">
-                <div className="bg-background rounded-lg p-3">
+                <motion.div
+                  className="bg-background rounded-lg p-3"
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.35, delay: 1.4 }}
+                >
                   <p className="text-[10px] text-muted-foreground">Peak Week</p>
                   <p className="text-lg font-bold text-foreground">W8</p>
-                </div>
-                <div className="bg-background rounded-lg p-3">
+                </motion.div>
+                <motion.div
+                  className="bg-background rounded-lg p-3"
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.35, delay: 1.5 }}
+                >
                   <p className="text-[10px] text-muted-foreground">Avg Score</p>
                   <p className="text-lg font-bold text-foreground">67.5</p>
-                </div>
+                </motion.div>
               </div>
             </CardContent>
           </Card>

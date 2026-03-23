@@ -34,6 +34,10 @@ const industryColors: Record<string, string> = {
   Aviation: "bg-sky-500/15 text-sky-400 border-sky-500/30",
   Mining: "bg-stone-400/15 text-stone-300 border-stone-400/30",
   Conglomerate: "bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/30",
+  Insurance: "bg-green-500/15 text-green-400 border-green-500/30",
+  Agriculture: "bg-lime-600/15 text-lime-300 border-lime-600/30",
+  Chemicals: "bg-yellow-600/15 text-yellow-300 border-yellow-600/30",
+  Education: "bg-sky-600/15 text-sky-300 border-sky-600/30",
 };
 
 const countryFlags: Record<string, string> = {
@@ -58,6 +62,10 @@ const countryFlags: Record<string, string> = {
   Norway: "🇳🇴",
   Ireland: "🇮🇪",
   Belgium: "🇧🇪",
+  Brazil: "🇧🇷",
+  Russia: "🇷🇺",
+  Taiwan: "🇹🇼",
+  "Saudi Arabia": "🇸🇦",
 };
 
 function getIndustryColor(industry: string) {
@@ -215,6 +223,12 @@ export default function CompaniesPage() {
             <h1 className="text-2xl font-bold text-foreground">
               Company Database
             </h1>
+            <Badge
+              variant="secondary"
+              className="ml-1 bg-primary/15 text-primary border border-primary/20 font-semibold"
+            >
+              {companies.length}+ Companies
+            </Badge>
           </div>
           <p className="text-muted-foreground text-sm ml-12">
             Search and explore global companies. Click any card to view
@@ -223,6 +237,7 @@ export default function CompaniesPage() {
         </div>
       </div>
 
+      {/* Search + Filters + Results */}
       <div className="max-w-6xl mx-auto px-6 py-6">
         {/* Search + Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -240,7 +255,7 @@ export default function CompaniesPage() {
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              placeholder="Search companies..."
+              placeholder={`Search ${companies.length}+ companies...`}
               className="pl-9 bg-card border-border"
             />
             <AnimatePresence>

@@ -6,6 +6,7 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
+import { useRef } from "react";
 import Layout from "./components/Layout";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useUserProfile } from "./hooks/useQueries";
@@ -20,6 +21,7 @@ import MarketScoutPage from "./pages/MarketScout";
 import OnboardingPage from "./pages/Onboarding";
 import OpenRolesPage from "./pages/OpenRoles";
 import ProfilePage from "./pages/Profile";
+import ScoutHistoryPage from "./pages/ScoutHistory";
 
 const rootRoute = createRootRoute({
   component: RootComponent,
@@ -29,6 +31,9 @@ function RootComponent() {
   const { identity, isInitializing } = useInternetIdentity();
   const { data: profile, isLoading: profileLoading } = useUserProfile();
   const queryClient = useQueryClient();
+  // Once onboarding completes in this session, never show it again
+  // even if the background refetch briefly returns undefined/null.
+  const onboardingDone = useRef(false);
 
   if (isInitializing) {
     return (
@@ -56,10 +61,16 @@ function RootComponent() {
     );
   }
 
-  if (profile === null || profile === undefined) {
+  // If backend already has a profile, mark onboarding as done.
+  if (profile) {
+    onboardingDone.current = true;
+  }
+
+  if (!onboardingDone.current && (profile === null || profile === undefined)) {
     return (
       <OnboardingPage
         onComplete={() => {
+          onboardingDone.current = true;
           queryClient.invalidateQueries({ queryKey: ["userProfile"] });
         }}
       />
@@ -109,6 +120,11 @@ const analyticsRoute = createRoute({
   path: "/analytics",
   component: AnalyticsPage,
 });
+const scoutHistoryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/scout-history",
+  component: ScoutHistoryPage,
+});
 const openRolesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/open-roles",
@@ -125,6 +141,7 @@ const routeTree = rootRoute.addChildren([
   marketScoutRoute,
   analyticsRoute,
   openRolesRoute,
+  scoutHistoryRoute,
 ]);
 const router = createRouter({ routeTree });
 
