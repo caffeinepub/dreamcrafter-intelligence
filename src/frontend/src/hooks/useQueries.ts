@@ -106,8 +106,6 @@ export function useSaveUserProfile() {
         email: params.email,
         avatarUrl: ExternalBlob.fromURL(params.avatarUrl ?? ""),
       });
-      // Also invalidate so a fresh fetch happens in the background.
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
   });
 }

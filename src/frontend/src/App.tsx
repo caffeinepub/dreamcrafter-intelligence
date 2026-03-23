@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { useRef } from "react";
 import Layout from "./components/Layout";
+import { useActor } from "./hooks/useActor";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useUserProfile } from "./hooks/useQueries";
 import AnalysisPathPage from "./pages/AnalysisPath";
@@ -29,6 +30,7 @@ const rootRoute = createRootRoute({
 
 function RootComponent() {
   const { identity, isInitializing } = useInternetIdentity();
+  const { isFetching: actorFetching } = useActor();
   const { data: profile, isLoading: profileLoading } = useUserProfile();
   const queryClient = useQueryClient();
   // Once onboarding completes in this session, never show it again
@@ -48,6 +50,20 @@ function RootComponent() {
 
   if (!identity) {
     return <LoginPage />;
+  }
+
+  // Wait for the actor to finish initializing before checking the profile.
+  // Without this guard, actorFetching=true means useUserProfile has enabled:false,
+  // so profileLoading=false and profile=undefined — wrongly triggering onboarding.
+  if (actorFetching) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <p className="text-muted-foreground text-sm">Connecting...</p>
+        </div>
+      </div>
+    );
   }
 
   if (profileLoading) {

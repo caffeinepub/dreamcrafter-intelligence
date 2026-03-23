@@ -82,7 +82,20 @@ const SIGNAL_TABS = [
   "News",
 ] as const;
 
-type SignalTab = (typeof SIGNAL_TABS)[number];
+type _SignalTab = (typeof SIGNAL_TABS)[number];
+
+const ALL_SIGNAL_TABS = [
+  "Release Notes",
+  "Features",
+  "Press",
+  "Dev",
+  "Strategy",
+  "News",
+  "Open Roles",
+  "Intelligence Sources",
+] as const;
+
+type AnySignalTab = (typeof ALL_SIGNAL_TABS)[number];
 
 const PIPELINE_STEPS: PipelineStep[] = [
   { id: 1, label: "Generate Queries", icon: Search },
@@ -111,6 +124,623 @@ const COMPETITOR_STEPS = [
 ];
 
 const COMPETITOR_DELAYS = [900, 1100, 1200, 1000];
+const COMPANY_URLS: Record<
+  string,
+  {
+    releaseNotes: string;
+    features: string;
+    press: string;
+    dev: string;
+    roadmap: string;
+    news: string;
+  }
+> = {
+  stripe: {
+    releaseNotes: "https://stripe.com/docs/changelog",
+    features: "https://stripe.com/blog",
+    press: "https://stripe.com/newsroom",
+    dev: "https://stripe.com/blog/engineering",
+    roadmap: "https://stripe.com/blog",
+    news: "https://stripe.com/newsroom",
+  },
+  openai: {
+    releaseNotes: "https://platform.openai.com/docs/changelog",
+    features: "https://openai.com/news",
+    press: "https://openai.com/news",
+    dev: "https://platform.openai.com/docs/changelog",
+    roadmap: "https://openai.com/research",
+    news: "https://openai.com/news",
+  },
+  github: {
+    releaseNotes: "https://github.blog/changelog",
+    features: "https://github.blog",
+    press: "https://github.blog",
+    dev: "https://github.blog/engineering",
+    roadmap: "https://github.blog",
+    news: "https://github.blog",
+  },
+  vercel: {
+    releaseNotes: "https://vercel.com/changelog",
+    features: "https://vercel.com/changelog",
+    press: "https://vercel.com/blog",
+    dev: "https://vercel.com/blog",
+    roadmap: "https://vercel.com/blog",
+    news: "https://vercel.com/blog",
+  },
+  anthropic: {
+    releaseNotes: "https://www.anthropic.com/news",
+    features: "https://www.anthropic.com/news",
+    press: "https://www.anthropic.com/news",
+    dev: "https://docs.anthropic.com/en/release-notes/overview",
+    roadmap: "https://www.anthropic.com/research",
+    news: "https://www.anthropic.com/news",
+  },
+  linear: {
+    releaseNotes: "https://linear.app/changelog",
+    features: "https://linear.app/changelog",
+    press: "https://linear.app/blog",
+    dev: "https://linear.app/changelog",
+    roadmap: "https://linear.app/blog",
+    news: "https://linear.app/blog",
+  },
+  notion: {
+    releaseNotes: "https://www.notion.so/releases",
+    features: "https://www.notion.so/releases",
+    press: "https://www.notion.so/blog",
+    dev: "https://developers.notion.com",
+    roadmap: "https://www.notion.so/blog",
+    news: "https://www.notion.so/blog",
+  },
+  shopify: {
+    releaseNotes: "https://www.shopify.com/partners/blog/topics/changelog",
+    features: "https://www.shopify.com/news",
+    press: "https://www.shopify.com/news",
+    dev: "https://shopify.dev/changelog",
+    roadmap: "https://www.shopify.com/news",
+    news: "https://www.shopify.com/news",
+  },
+  cloudflare: {
+    releaseNotes: "https://blog.cloudflare.com",
+    features: "https://blog.cloudflare.com",
+    press: "https://blog.cloudflare.com",
+    dev: "https://blog.cloudflare.com/tag/developers",
+    roadmap: "https://blog.cloudflare.com",
+    news: "https://blog.cloudflare.com",
+  },
+  slack: {
+    releaseNotes: "https://slack.com/intl/en-us/release-notes",
+    features: "https://slack.com/blog/news",
+    press: "https://slack.com/blog/news",
+    dev: "https://api.slack.com/changelog",
+    roadmap: "https://slack.com/blog/news",
+    news: "https://slack.com/blog/news",
+  },
+  figma: {
+    releaseNotes: "https://www.figma.com/release-notes",
+    features: "https://www.figma.com/blog",
+    press: "https://www.figma.com/blog",
+    dev: "https://www.figma.com/developers",
+    roadmap: "https://www.figma.com/blog",
+    news: "https://www.figma.com/blog",
+  },
+  twilio: {
+    releaseNotes: "https://www.twilio.com/en-us/changelog",
+    features: "https://www.twilio.com/blog/product",
+    press: "https://www.twilio.com/blog/press-releases",
+    dev: "https://www.twilio.com/blog/engineering",
+    roadmap: "https://www.twilio.com/blog",
+    news: "https://www.twilio.com/blog",
+  },
+  microsoft: {
+    releaseNotes:
+      "https://learn.microsoft.com/en-us/microsoft-365/admin/misc/release-notes",
+    features:
+      "https://techcommunity.microsoft.com/t5/microsoft-365-blog/bg-p/microsoft365blog",
+    press: "https://news.microsoft.com",
+    dev: "https://devblogs.microsoft.com",
+    roadmap: "https://www.microsoft.com/en-us/microsoft-365/roadmap",
+    news: "https://news.microsoft.com",
+  },
+  google: {
+    releaseNotes: "https://workspace.google.com/whatsnew",
+    features: "https://workspace.google.com/whatsnew",
+    press: "https://blog.google",
+    dev: "https://developers.googleblog.com",
+    roadmap: "https://blog.google",
+    news: "https://blog.google",
+  },
+  apple: {
+    releaseNotes: "https://developer.apple.com/news/releases",
+    features: "https://www.apple.com/newsroom",
+    press: "https://www.apple.com/newsroom",
+    dev: "https://developer.apple.com/news",
+    roadmap: "https://www.apple.com/newsroom",
+    news: "https://www.apple.com/newsroom",
+  },
+  netflix: {
+    releaseNotes: "https://netflixtechblog.com",
+    features: "https://about.netflix.com/en/news",
+    press: "https://about.netflix.com/en/news",
+    dev: "https://netflixtechblog.com",
+    roadmap: "https://about.netflix.com/en/news",
+    news: "https://about.netflix.com/en/news",
+  },
+  airbnb: {
+    releaseNotes: "https://medium.com/airbnb-engineering",
+    features: "https://news.airbnb.com",
+    press: "https://news.airbnb.com",
+    dev: "https://medium.com/airbnb-engineering",
+    roadmap: "https://news.airbnb.com",
+    news: "https://news.airbnb.com",
+  },
+  uber: {
+    releaseNotes: "https://www.uber.com/en-US/newsroom",
+    features: "https://www.uber.com/en-US/newsroom",
+    press: "https://www.uber.com/en-US/newsroom",
+    dev: "https://www.uber.com/en-US/blog/engineering",
+    roadmap: "https://www.uber.com/en-US/newsroom",
+    news: "https://www.uber.com/en-US/newsroom",
+  },
+  spotify: {
+    releaseNotes: "https://newsroom.spotify.com",
+    features: "https://newsroom.spotify.com",
+    press: "https://newsroom.spotify.com",
+    dev: "https://engineering.atspotify.com",
+    roadmap: "https://newsroom.spotify.com",
+    news: "https://newsroom.spotify.com",
+  },
+  tesla: {
+    releaseNotes: "https://www.tesla.com/blog",
+    features: "https://www.tesla.com/blog",
+    press: "https://ir.tesla.com/news-releases",
+    dev: "https://developer.tesla.com",
+    roadmap: "https://www.tesla.com/blog",
+    news: "https://www.tesla.com/blog",
+  },
+  meta: {
+    releaseNotes: "https://engineering.fb.com",
+    features: "https://about.fb.com/news",
+    press: "https://about.fb.com/news",
+    dev: "https://developers.facebook.com/blog",
+    roadmap: "https://about.fb.com/news",
+    news: "https://about.fb.com/news",
+  },
+  amazon: {
+    releaseNotes: "https://aws.amazon.com/releasenotes",
+    features: "https://aws.amazon.com/blogs/aws",
+    press: "https://press.aboutamazon.com",
+    dev: "https://developer.amazon.com/blogs",
+    roadmap: "https://aws.amazon.com/blogs/aws",
+    news: "https://press.aboutamazon.com",
+  },
+  salesforce: {
+    releaseNotes:
+      "https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm",
+    features: "https://www.salesforce.com/blog/product-news",
+    press: "https://www.salesforce.com/news/press-releases",
+    dev: "https://developer.salesforce.com/blogs",
+    roadmap: "https://www.salesforce.com/blog",
+    news: "https://www.salesforce.com/news",
+  },
+  hubspot: {
+    releaseNotes: "https://www.hubspot.com/product-updates",
+    features: "https://www.hubspot.com/product-updates",
+    press: "https://www.hubspot.com/press",
+    dev: "https://developers.hubspot.com/changelog",
+    roadmap: "https://www.hubspot.com/product-updates",
+    news: "https://www.hubspot.com/news",
+  },
+  atlassian: {
+    releaseNotes:
+      "https://confluence.atlassian.com/alldoc/atlassian-documentation-32243719.html",
+    features: "https://www.atlassian.com/blog/product-updates",
+    press: "https://www.atlassian.com/company/news",
+    dev: "https://developer.atlassian.com/blog",
+    roadmap: "https://www.atlassian.com/blog",
+    news: "https://www.atlassian.com/company/news",
+  },
+  zoom: {
+    releaseNotes:
+      "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0060541",
+    features: "https://blog.zoom.us/category/product-news",
+    press: "https://news.zoom.us",
+    dev: "https://devforum.zoom.us",
+    roadmap: "https://blog.zoom.us",
+    news: "https://news.zoom.us",
+  },
+  dropbox: {
+    releaseNotes: "https://help.dropbox.com/organize/release-notes",
+    features: "https://blog.dropbox.com",
+    press: "https://newsroom.dropbox.com",
+    dev: "https://dropbox.tech",
+    roadmap: "https://blog.dropbox.com",
+    news: "https://newsroom.dropbox.com",
+  },
+};
+
+function getCompanyUrls(company: string) {
+  const key = company.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return COMPANY_URLS[key] ?? null;
+}
+
+function googleSearch(query: string) {
+  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+}
+
+// ─── Intelligence Dashboard Header ───────────────────────────────────────────
+function IntelligenceDashboardHeader({ companyName }: { companyName: string }) {
+  const [clock, setClock] = useState(() => {
+    const now = new Date();
+    return now.toTimeString().slice(0, 8);
+  });
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setClock(new Date().toTimeString().slice(0, 8));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%)",
+      }}
+      data-ocid="market_scout.intelligence_dashboard.panel"
+    >
+      <div className="px-5 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-300/70 mb-0.5">
+              INTELLIGENCE DASHBOARD
+            </p>
+            <h2 className="text-lg font-bold text-white leading-tight">
+              Your Intelligence Analysis Path
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5">
+            <Clock size={13} className="text-indigo-300" />
+            <span className="font-mono text-sm font-semibold text-white tabular-nums">
+              {clock}
+            </span>
+            <span className="text-xs text-indigo-300 font-medium ml-1">
+              Dreamcrafter Intelligence
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="px-5 py-3 flex items-center gap-2 flex-wrap">
+        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+        <p className="text-xs text-slate-300 leading-relaxed">
+          Real-time competitive monitoring
+          <span className="text-white/30 mx-2">·</span>4 signal categories
+          <span className="text-white/30 mx-2">·</span>
+          8-week rolling window
+          <span className="text-white/30 mx-2">·</span>
+          analyzing{" "}
+          <span className="text-indigo-300 font-semibold">{companyName}</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Intelligence Sources Card ────────────────────────────────────────────────
+const INTEL_SOURCE_DEFS = [
+  {
+    key: "releaseNotes" as const,
+    label: "Release Notes",
+    desc: "Official version releases & changelogs",
+    icon: FileText,
+    color: "text-blue-400",
+    bg: "rgba(59,130,246,0.12)",
+    border: "rgba(59,130,246,0.25)",
+    fallbackSuffix: "release notes changelog",
+  },
+  {
+    key: "features" as const,
+    label: "Features",
+    desc: "Product announcements & feature drops",
+    icon: Sparkles,
+    color: "text-violet-400",
+    bg: "rgba(139,92,246,0.12)",
+    border: "rgba(139,92,246,0.25)",
+    fallbackSuffix: "features product announcements",
+  },
+  {
+    key: "press" as const,
+    label: "Press",
+    desc: "News articles & media coverage",
+    icon: Newspaper,
+    color: "text-emerald-400",
+    bg: "rgba(52,211,153,0.12)",
+    border: "rgba(52,211,153,0.25)",
+    fallbackSuffix: "press news coverage",
+  },
+  {
+    key: "dev" as const,
+    label: "Dev Updates",
+    desc: "Engineering blog & API changes",
+    icon: Code,
+    color: "text-amber-400",
+    bg: "rgba(251,191,36,0.12)",
+    border: "rgba(251,191,36,0.25)",
+    fallbackSuffix: "engineering blog API changes",
+  },
+  {
+    key: "roadmap" as const,
+    label: "Strategy",
+    desc: "Vision, roadmap & strategic moves",
+    icon: Target,
+    color: "text-rose-400",
+    bg: "rgba(251,113,133,0.12)",
+    border: "rgba(251,113,133,0.25)",
+    fallbackSuffix: "roadmap strategy vision",
+  },
+  {
+    key: "news" as const,
+    label: "News",
+    desc: "Real-time coverage & breaking news",
+    icon: Radio,
+    color: "text-cyan-400",
+    bg: "rgba(34,211,238,0.12)",
+    border: "rgba(34,211,238,0.25)",
+    fallbackSuffix: "news breaking coverage",
+  },
+];
+
+function IntelligenceSourcesCard({ companyName }: { companyName: string }) {
+  const urls = getCompanyUrls(companyName);
+
+  return (
+    <div data-ocid="market_scout.intelligence_sources.panel">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h3 className="text-sm font-semibold flex items-center gap-1.5">
+            <DatabaseZap size={14} className="text-primary" />
+            Quick access to <span className="text-primary">{companyName}</span>{" "}
+            signals across 6 intelligence categories
+          </h3>
+        </div>
+        <Badge className="bg-primary/15 text-primary border-primary/30 border text-[10px] px-2.5 flex-shrink-0">
+          6 SOURCES
+        </Badge>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+        {INTEL_SOURCE_DEFS.map((cat) => {
+          const Icon = cat.icon;
+          const href = urls
+            ? urls[cat.key]
+            : googleSearch(`${companyName} ${cat.fallbackSuffix}`);
+          const displayUrl = href
+            .replace(/^https?:\/\//, "")
+            .replace(/\/$/, "");
+          return (
+            <a
+              key={cat.key}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col gap-2 p-3.5 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              style={{ background: cat.bg, borderColor: cat.border }}
+              data-ocid={`market_scout.intel_source.${cat.key}.link`}
+            >
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: cat.bg,
+                    border: `1px solid ${cat.border}`,
+                  }}
+                >
+                  <Icon size={14} className={cat.color} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-semibold ${cat.color}`}>
+                    {cat.label}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">
+                    {cat.desc}
+                  </p>
+                </div>
+                <ExternalLink
+                  size={11}
+                  className={cn(
+                    "flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity",
+                    cat.color,
+                  )}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground/60 truncate font-mono">
+                {displayUrl}
+              </p>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Trending Intel Signals ───────────────────────────────────────────────────
+function TrendingIntelSignals({ features }: { features: string[] }) {
+  return (
+    <div data-ocid="market_scout.trending_signals.panel">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="flex-1 h-px bg-border/60" />
+        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground flex items-center gap-1.5 px-2 flex-shrink-0">
+          <Zap size={12} className="text-amber-400" />
+          TRENDING INTEL SIGNALS
+          <span className="text-muted-foreground/50">···</span>
+        </h3>
+        <div className="flex-1 h-px bg-border/60" />
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {features.map((f, i) => {
+          const colors = [
+            "bg-blue-500/10 border-blue-500/25 text-blue-400",
+            "bg-violet-500/10 border-violet-500/25 text-violet-400",
+            "bg-emerald-500/10 border-emerald-500/25 text-emerald-400",
+            "bg-amber-500/10 border-amber-500/25 text-amber-400",
+            "bg-rose-500/10 border-rose-500/25 text-rose-400",
+            "bg-cyan-500/10 border-cyan-500/25 text-cyan-400",
+          ];
+          return (
+            <motion.span
+              key={f}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.04, duration: 0.2 }}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium",
+                colors[i % colors.length],
+              )}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 flex-shrink-0" />
+              {f}
+            </motion.span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Intelligence Pipeline ────────────────────────────────────────────────────
+const INTEL_PIPELINE_STEPS = [
+  { num: "01", label: "Define", desc: "Set intelligence objectives & scope" },
+  { num: "02", label: "Collect", desc: "Aggregate signals across sources" },
+  { num: "03", label: "Process", desc: "Filter, normalize & enrich data" },
+  { num: "04", label: "Analyze", desc: "Extract patterns & insights" },
+  { num: "05", label: "Deliver", desc: "Distribute actionable intelligence" },
+] as const;
+
+type PipelineStatus = "DONE" | "ACTIVE" | "QUEUED";
+
+function IntelligencePipeline() {
+  const [statuses, setStatuses] = useState<PipelineStatus[]>([
+    "DONE",
+    "DONE",
+    "QUEUED",
+    "QUEUED",
+    "QUEUED",
+  ]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setStatuses(["DONE", "DONE", "ACTIVE", "QUEUED", "QUEUED"]);
+    }, 500);
+    return () => clearTimeout(t);
+  }, []);
+
+  const badge = (s: PipelineStatus) => {
+    if (s === "DONE")
+      return "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+    if (s === "ACTIVE")
+      return "bg-blue-500/15 text-blue-400 border-blue-500/30";
+    return "bg-muted/40 text-muted-foreground border-border";
+  };
+
+  const circle = (s: PipelineStatus) => {
+    if (s === "DONE")
+      return "bg-emerald-500/20 border-emerald-500/50 text-emerald-400";
+    if (s === "ACTIVE")
+      return "bg-blue-500/20 border-blue-500/50 text-blue-400";
+    return "bg-muted/30 border-border text-muted-foreground";
+  };
+
+  return (
+    <div data-ocid="market_scout.intelligence_pipeline.panel">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex-1 h-px bg-border/60" />
+        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground px-2 flex-shrink-0 flex items-center gap-1.5">
+          <DatabaseZap size={12} className="text-primary" />
+          Intelligence Pipeline
+        </h3>
+        <div className="flex-1 h-px bg-border/60" />
+      </div>
+      <div className="flex flex-col gap-0">
+        {INTEL_PIPELINE_STEPS.map((step, i) => {
+          const status = statuses[i];
+          return (
+            <div key={step.num} className="flex items-stretch gap-3">
+              {/* Left: number circle + connector */}
+              <div className="flex flex-col items-center flex-shrink-0 w-8">
+                <motion.div
+                  className={cn(
+                    "w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-500",
+                    circle(status),
+                  )}
+                  animate={
+                    status === "ACTIVE"
+                      ? {
+                          boxShadow: [
+                            "0 0 0 0px rgba(59,130,246,0.3)",
+                            "0 0 0 6px rgba(59,130,246,0)",
+                            "0 0 0 0px rgba(59,130,246,0.3)",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={
+                    status === "ACTIVE"
+                      ? { repeat: Number.POSITIVE_INFINITY, duration: 2 }
+                      : {}
+                  }
+                >
+                  {step.num}
+                </motion.div>
+                {i < INTEL_PIPELINE_STEPS.length - 1 && (
+                  <div
+                    className={cn(
+                      "w-0.5 flex-1 my-1 rounded-full transition-all duration-500",
+                      status === "DONE" ? "bg-emerald-500/40" : "bg-border/50",
+                    )}
+                    style={{ minHeight: "20px" }}
+                  />
+                )}
+              </div>
+              {/* Right: content */}
+              <div
+                className={cn(
+                  "flex-1 flex items-center justify-between gap-3 py-2 min-h-[40px]",
+                  i < INTEL_PIPELINE_STEPS.length - 1 ? "pb-3" : "",
+                )}
+              >
+                <div>
+                  <p
+                    className={cn(
+                      "text-sm font-semibold leading-tight",
+                      status === "DONE" && "text-emerald-400",
+                      status === "ACTIVE" && "text-blue-400",
+                      status === "QUEUED" && "text-muted-foreground",
+                    )}
+                  >
+                    {step.label}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {step.desc}
+                  </p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px] px-2 py-0.5 border font-semibold flex-shrink-0 transition-all duration-500",
+                    badge(status),
+                  )}
+                >
+                  {status}
+                </Badge>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function generateScoutData(
   company: string,
@@ -125,15 +755,24 @@ function generateScoutData(
     `"${c}" engineering blog 2026`,
   ];
 
-  const slug = c.toLowerCase().replace(/\s+/g, "-");
-  const sources = [
-    `https://docs.${slug}.com/api/reference`,
-    `https://github.com/${slug}`,
-    `https://techcrunch.com/2026/03/${slug}-platform-update`,
-    `https://blog.${slug}.com/engineering`,
-    `https://news.ycombinator.com/item?id=${(Math.abs(c.split("").reduce((a, b) => a + b.charCodeAt(0), 0) * 3711) % 39999999) + 10000000}`,
-    `https://stackoverflow.com/questions/tagged/${slug}`,
-  ];
+  const knownUrls = getCompanyUrls(c);
+  const sources = knownUrls
+    ? [
+        knownUrls.releaseNotes,
+        knownUrls.features,
+        knownUrls.press,
+        knownUrls.dev,
+        knownUrls.roadmap,
+        knownUrls.news,
+      ]
+    : [
+        googleSearch(`"${c}" release notes changelog 2026`),
+        googleSearch(`"${c}" new features product updates 2026`),
+        googleSearch(`"${c}" press newsroom 2026`),
+        googleSearch(`"${c}" engineering blog developer updates`),
+        googleSearch(`"${c}" roadmap strategy`),
+        googleSearch(`"${c}" latest news 2026`),
+      ];
 
   const hash = c.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
   const featureSets = [
@@ -440,69 +1079,143 @@ function ScrapedResultsSection({
   );
 }
 
-function LiveAnalysisReport({ features }: { features: string[] }) {
-  const signalsFound = features.length * 3;
-  const featuresExtracted = features.length;
-  const recencyScore = 88 + (featuresExtracted % 10);
-
-  const metrics = [
+function LiveAnalysisReport({
+  features,
+  onExport,
+}: { features: string[]; onExport?: () => void }) {
+  const base = features.length;
+  const categories = [
     {
-      label: "Signals Found",
-      value: String(signalsFound),
-      icon: Zap,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10",
-    },
-    {
-      label: "Sources Scraped",
-      value: "4",
-      icon: Globe,
+      label: "Release Notes",
+      icon: FileText,
       color: "text-blue-400",
       bg: "bg-blue-500/10",
+      signals: Math.round(base * 2.5 + 3),
+      pct: +(16.7).toFixed(1),
+      note: "Major v3.2 release cycle detected across 4 competitors",
     },
     {
-      label: "Features Extracted",
-      value: String(featuresExtracted),
-      icon: Cpu,
+      label: "Features",
+      icon: Sparkles,
       color: "text-violet-400",
       bg: "bg-violet-500/10",
+      signals: Math.round(base * 2.2 + 3),
+      pct: +(8.7).toFixed(1),
+      note: "AI-assisted workflows trending heavily this week",
     },
     {
-      label: "Recency Score",
-      value: `${recencyScore}%`,
-      icon: CheckCircle,
+      label: "Press",
+      icon: Newspaper,
       color: "text-emerald-400",
       bg: "bg-emerald-500/10",
+      signals: Math.round(base * 1.6 + 2),
+      pct: -5.3,
+      note: "Press coverage dipped post-conference cycle",
+    },
+    {
+      label: "Dev Updates",
+      icon: Code,
+      color: "text-amber-400",
+      bg: "bg-amber-500/10",
+      signals: Math.round(base * 3.4 + 4),
+      pct: +(22.4).toFixed(1) as unknown as number,
+      note: "Developer activity spiked with new API endpoints",
+    },
+    {
+      label: "Strategy",
+      icon: Target,
+      color: "text-rose-400",
+      bg: "bg-rose-500/10",
+      signals: Math.round(base * 1.1 + 2),
+      pct: +(4.1).toFixed(1) as unknown as number,
+      note: "Long-term roadmap signals detected",
+    },
+    {
+      label: "News",
+      icon: Radio,
+      color: "text-cyan-400",
+      bg: "bg-cyan-500/10",
+      signals: Math.round(base * 1.9 + 2),
+      pct: +(11.2).toFixed(1) as unknown as number,
+      note: "Breaking coverage trending upward",
     },
   ];
 
   return (
     <div data-ocid="market_scout.live_analysis.panel">
-      <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
-        <BarChart2 size={14} className="text-primary" /> Live Analysis Report
-      </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {metrics.map(({ label, value, icon: Icon, color, bg }) => (
-          <div
-            key={label}
-            className="p-3 rounded-xl border border-border/60 bg-muted/20 flex flex-col items-center gap-2"
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold flex items-center gap-1.5">
+          <BarChart2 size={14} className="text-primary" /> Live Analysis Report
+          <span className="text-[10px] text-muted-foreground font-normal ml-1">
+            Week-over-week intelligence
+          </span>
+        </h3>
+        {onExport && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onExport}
+            className="h-7 text-xs px-2.5"
+            data-ocid="market_scout.live_analysis.export.button"
           >
+            <Download size={11} className="mr-1.5" /> Export
+          </Button>
+        )}
+      </div>
+      <div className="rounded-xl border border-border/60 overflow-hidden">
+        {categories.map(
+          ({ label, icon: Icon, color, bg, signals, pct, note }, idx) => (
             <div
+              key={label}
               className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center",
-                bg,
+                "flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/20",
+                idx % 2 === 0 ? "bg-muted/10" : "bg-transparent",
               )}
+              data-ocid={`market_scout.live_analysis.row.${idx + 1}`}
             >
-              <Icon size={16} className={color} />
+              <div
+                className={cn(
+                  "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0",
+                  bg,
+                )}
+              >
+                <Icon size={13} className={color} />
+              </div>
+              <div className="w-24 flex-shrink-0">
+                <p className={cn("text-xs font-semibold", color)}>{label}</p>
+              </div>
+              <div className="w-20 flex-shrink-0">
+                <p className="text-sm font-bold text-foreground tabular-nums">
+                  {signals}
+                  <span className="text-[10px] font-normal text-muted-foreground ml-1">
+                    signals
+                  </span>
+                </p>
+              </div>
+              <div className="w-16 flex-shrink-0">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md",
+                    pct >= 0
+                      ? "bg-emerald-500/10 text-emerald-400"
+                      : "bg-red-500/10 text-red-400",
+                  )}
+                >
+                  {pct >= 0 ? (
+                    <TrendingUp size={10} />
+                  ) : (
+                    <TrendingDown size={10} />
+                  )}
+                  {pct >= 0 ? "+" : ""}
+                  {pct}%
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-snug flex-1 hidden sm:block">
+                {note}
+              </p>
             </div>
-            <p className={cn("text-2xl font-bold leading-none", color)}>
-              {value}
-            </p>
-            <p className="text-[10px] text-muted-foreground text-center leading-tight">
-              {label}
-            </p>
-          </div>
-        ))}
+          ),
+        )}
       </div>
     </div>
   );
@@ -817,7 +1530,7 @@ function CompanyOverviewCard({ overview }: { overview: CompanyOverview }) {
   );
 }
 
-const SOURCE_CATEGORIES = [
+const _SOURCE_CATEGORIES = [
   {
     id: "release-notes",
     icon: FileText,
@@ -861,107 +1574,6 @@ const SOURCE_CATEGORIES = [
     color: "text-cyan-400",
   },
 ];
-
-function IntelligenceSourcesSection({ sources }: { sources: string[] }) {
-  return (
-    <div className="relative overflow-hidden rounded-xl border border-white/10">
-      {/* Dark gradient background */}
-      <div
-        className="absolute inset-0 rounded-xl"
-        style={{
-          background:
-            "linear-gradient(135deg, #0f0c29 0%, #1a0533 30%, #24243e 60%, #0d1b3e 100%)",
-        }}
-      />
-      <div
-        className="absolute inset-0 rounded-xl opacity-30"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.4) 0%, transparent 70%)",
-        }}
-      />
-      <div className="relative p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
-              <DatabaseZap size={14} className="text-indigo-400" />
-              Intelligence Sources
-            </h3>
-            <p className="text-[11px] text-white/40 mt-0.5">
-              6 active source categories
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] text-white/40">Live</span>
-          </div>
-        </div>
-
-        {/* 6 Category Badges Row */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {SOURCE_CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            return (
-              <div
-                key={cat.id}
-                className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-2.5 py-1 hover:bg-white/10 transition-colors"
-              >
-                <span className={`w-1.5 h-1.5 rounded-full ${cat.dot}`} />
-                <Icon size={10} className={cat.color} />
-                <span className="text-[10px] text-white/70 font-medium">
-                  {cat.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Source list */}
-        <div className="space-y-2">
-          {sources.map((src) => {
-            const type = getSourceType(src);
-            let domain = src;
-            try {
-              domain = new URL(src).hostname;
-            } catch (_) {
-              // keep original
-            }
-            return (
-              <div
-                key={src}
-                className="flex items-center gap-3 p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-              >
-                <Globe size={13} className="text-white/40 flex-shrink-0" />
-                <a
-                  href={src}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-indigo-300 hover:text-indigo-200 hover:underline truncate flex-1 min-w-0"
-                  title={src}
-                >
-                  {domain}
-                </a>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-[10px] px-2 py-0.5 border flex-shrink-0",
-                    getSourceTypeBadgeClass(type),
-                  )}
-                >
-                  {type}
-                </Badge>
-                <span className="text-[10px] text-white/30 flex-shrink-0 whitespace-nowrap">
-                  Scraped · just now
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function OpenRolesSection({ companyName }: { companyName: string }) {
   const roles = getOpenRoles(companyName);
@@ -1017,7 +1629,7 @@ function ResultPanel({
   onRerun: () => void;
 }) {
   const [queriesOpen, setQueriesOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<SignalTab>("Release Notes");
+  const [activeTab, setActiveTab] = useState<AnySignalTab>("Release Notes");
   const date = new Date(
     Number(result.timestamp) / 1_000_000,
   ).toLocaleDateString("en-US", {
@@ -1067,9 +1679,12 @@ function ResultPanel({
       className="space-y-3"
       data-ocid="market_scout.result.panel"
     >
+      {/* Intelligence Dashboard Header */}
+      <IntelligenceDashboardHeader companyName={result.companyName} />
+
       {/* Signal category tabs */}
       <div className="flex gap-1 flex-wrap" data-ocid="market_scout.signal.tab">
-        {SIGNAL_TABS.map((tab) => (
+        {ALL_SIGNAL_TABS.map((tab) => (
           <button
             key={tab}
             type="button"
@@ -1156,13 +1771,16 @@ function ResultPanel({
             <CompanyOverviewCard overview={result.companyOverview} />
           )}
 
-          {/* 2. Live Analysis Report */}
-          <LiveAnalysisReport features={result.features} />
+          {/* 2. Intelligence Sources Card */}
+          <IntelligenceSourcesCard companyName={result.companyName} />
 
-          {/* 3. Week-over-week intelligence */}
+          {/* 3. Live Analysis Report (per-category) */}
+          <LiveAnalysisReport features={result.features} onExport={exportTxt} />
+
+          {/* 4. Week-over-week intelligence */}
           <WeekOverWeekStats company={result.companyName} />
 
-          {/* 4. AI Summary */}
+          {/* 5. AI Summary */}
           <div>
             <h3 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
               <Sparkles size={14} className="text-primary" /> AI Summary
@@ -1172,7 +1790,7 @@ function ResultPanel({
             </p>
           </div>
 
-          {/* 5. Technical Features */}
+          {/* 6. Technical Features */}
           <div>
             <h3 className="text-sm font-semibold mb-3">Technical Features</h3>
             <div className="flex flex-wrap gap-2">
@@ -1187,20 +1805,23 @@ function ResultPanel({
             </div>
           </div>
 
-          {/* 6. Scraped Results — 4 Sources */}
+          {/* 7. Scraped Results — 4 Sources */}
           <ScrapedResultsSection
             company={result.companyName}
             sources={result.sources}
           />
 
-          {/* 7. Activity Charts */}
+          {/* 8. Activity Charts */}
           <ActivityCharts company={result.companyName} />
 
-          {/* 8. Intelligence Sources */}
-          <IntelligenceSourcesSection sources={result.sources} />
+          {/* 9. Trending Intel Signals */}
+          <TrendingIntelSignals features={result.features} />
 
-          {/* 9. Open Roles */}
+          {/* 10. Open Roles */}
           <OpenRolesSection companyName={result.companyName} />
+
+          {/* 11. Intelligence Pipeline */}
+          <IntelligencePipeline />
 
           {/* 10. Search Queries */}
           <div>
@@ -1399,9 +2020,20 @@ function CompetitorBriefingCard({ companyName }: { companyName: string }) {
                 data-ocid="market_scout.briefing.report"
               >
                 <div className="p-3.5 rounded-xl bg-violet-500/5 border border-violet-500/20">
-                  <p className="text-xs font-semibold text-violet-400 mb-2.5 flex items-center gap-1.5">
-                    <FileText size={12} /> Structured Competitor Briefing Report
-                  </p>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p className="text-xs font-semibold text-violet-400 flex items-center gap-1.5">
+                      <FileText size={12} /> Structured Competitor Briefing
+                      Report
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
+                        ✓ ACCEPTED (3)
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/15 text-red-400 border border-red-500/30 text-[10px] font-bold">
+                        ✗ REJECTED (1)
+                      </span>
+                    </div>
+                  </div>
                   <ul className="space-y-2">
                     {briefing.insights.map((insight) => (
                       <li
@@ -1470,7 +2102,7 @@ function CompetitorBriefingCard({ companyName }: { companyName: string }) {
   );
 }
 
-const INTEL_CATEGORIES = [
+const _INTEL_CATEGORIES = [
   {
     label: "Release Notes",
     desc: "Official version releases & changelogs",
@@ -1521,138 +2153,6 @@ const INTEL_CATEGORIES = [
   },
 ];
 
-function HeroIntelligenceSources() {
-  return (
-    <div
-      style={{
-        background:
-          "linear-gradient(135deg, #0f0c29 0%, #1a0533 30%, #24243e 60%, #0d1b3e 100%)",
-        position: "relative",
-        overflow: "hidden",
-        borderRadius: "1rem",
-        marginBottom: "1.5rem",
-      }}
-      className="p-8"
-      data-ocid="market_scout.intel_sources.section"
-    >
-      {/* Radial glow overlay */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(139,92,246,0.18) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-      {/* Shimmer */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: "-100%",
-          width: "50%",
-          height: "100%",
-          background:
-            "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)",
-          animation: "shimmerIntel 3s ease-in-out infinite",
-          pointerEvents: "none",
-        }}
-      />
-      <style>
-        {"@keyframes shimmerIntel { 0% { left: -100%; } 100% { left: 200%; } }"}
-      </style>
-
-      <div style={{ position: "relative", zIndex: 1 }}>
-        {/* Header */}
-        <div className="flex flex-col items-center text-center mb-7">
-          <span
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3"
-            style={{
-              background: "rgba(139,92,246,0.15)",
-              border: "1px solid rgba(139,92,246,0.3)",
-              color: "#c4b5fd",
-            }}
-          >
-            <Radio size={11} /> 6 Active Source Categories
-          </span>
-          <h2
-            className="text-2xl font-bold mb-1.5"
-            style={{ color: "#f1f0ff" }}
-          >
-            Intelligence Sources
-          </h2>
-          <p className="text-sm" style={{ color: "rgba(196,181,253,0.7)" }}>
-            Quick access to signals across 6 intelligence categories
-          </p>
-        </div>
-
-        {/* Cards grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-7">
-          {INTEL_CATEGORIES.map((cat, i) => {
-            const Icon = cat.icon;
-            return (
-              <motion.div
-                key={cat.label}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06, duration: 0.3 }}
-                className="rounded-xl p-4 flex flex-col gap-2 cursor-default"
-                style={{
-                  background: cat.bg,
-                  border: `1px solid ${cat.border}`,
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Icon size={16} className={cat.color} />
-                  <span
-                    className="text-sm font-semibold"
-                    style={{ color: "#e9e4ff" }}
-                  >
-                    {cat.label}
-                  </span>
-                </div>
-                <p
-                  className="text-xs leading-relaxed"
-                  style={{ color: "rgba(196,181,253,0.65)" }}
-                >
-                  {cat.desc}
-                </p>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Stats row */}
-        <div className="flex flex-wrap justify-center gap-8">
-          {[
-            { value: "429+", label: "Companies Tracked" },
-            { value: "6", label: "Signal Categories" },
-            { value: "24", label: "Intelligence Sources" },
-            { value: "Real-time", label: "Update Frequency" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="flex flex-col items-center gap-0.5"
-            >
-              <span className="text-xl font-bold" style={{ color: "#c4b5fd" }}>
-                {stat.value}
-              </span>
-              <span
-                className="text-xs"
-                style={{ color: "rgba(196,181,253,0.6)" }}
-              >
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function MarketScoutPage() {
   const [company, setCompany] = useState("");
   const [stepStates, setStepStates] = useState<StepState[]>([
@@ -1675,6 +2175,14 @@ export default function MarketScoutPage() {
     return () => {
       abortRef.current = true;
     };
+  }, []);
+
+  useEffect(() => {
+    const prefill = sessionStorage.getItem("scout_prefill");
+    if (prefill) {
+      setCompany(prefill);
+      sessionStorage.removeItem("scout_prefill");
+    }
   }, []);
 
   const runScout = async (targetCompany?: string) => {
@@ -1746,7 +2254,6 @@ export default function MarketScoutPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <HeroIntelligenceSources />
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}

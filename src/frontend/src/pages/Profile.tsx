@@ -4,21 +4,39 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Activity,
+  AtSign,
   BarChart3,
   Briefcase,
   Building2,
   Camera,
   CheckCircle,
+  Clock,
   Copy,
+  ExternalLink,
   FileText,
+  Github,
+  Globe,
+  Linkedin,
   Loader2,
   MapPin,
+  Phone,
   Shield,
+  Star,
+  Upload,
   User,
+  X,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useRef, useState } from "react";
@@ -31,6 +49,34 @@ import {
   useUserProfile,
 } from "../hooks/useQueries";
 
+const AVAILABLE_ROLES = [
+  "Software Engineer",
+  "Data Scientist",
+  "AI/ML Engineer",
+  "Product Manager",
+  "DevOps Engineer",
+  "Cybersecurity Engineer",
+  "Cloud Engineer",
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "UX Designer",
+  "Business Analyst",
+];
+
+const AVAILABLE_INDUSTRIES = [
+  "Technology",
+  "Finance",
+  "Healthcare",
+  "AI/ML",
+  "Gaming",
+  "Retail",
+  "Energy",
+  "Media",
+  "Automotive",
+  "Logistics",
+];
+
 export default function ProfilePage() {
   const { identity } = useInternetIdentity();
   const { data: profile, isLoading } = useUserProfile();
@@ -38,6 +84,7 @@ export default function ProfilePage() {
   const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
   const saveProfile = useSaveUserProfile();
 
+  // Existing fields
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
@@ -49,6 +96,32 @@ export default function ProfilePage() {
     useState<Uint8Array<ArrayBuffer> | null>(null);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Social links
+  const [linkedin, setLinkedin] = useState("");
+  const [github, setGithub] = useState("");
+  const [portfolio, setPortfolio] = useState("");
+
+  // Contact info
+  const [phone, setPhone] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [timezone, setTimezone] = useState("");
+  const [preferredContact, setPreferredContact] = useState<
+    "Email" | "LinkedIn" | "Phone"
+  >("Email");
+
+  // Interests & roles
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [experience, setExperience] = useState("");
+  const [openToOpportunities, setOpenToOpportunities] = useState(false);
+
+  // Resume
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeDate, setResumeDate] = useState("");
+  const [coverLetter, setCoverLetter] = useState("");
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const principal = identity?.getPrincipal().toString() ?? "";
   const currentName = profile?.displayName || "";
@@ -76,6 +149,47 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
+  const handleResumeFile = (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Resume must be smaller than 5MB");
+      return;
+    }
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!ext || !["pdf", "doc", "docx"].includes(ext)) {
+      toast.error("Only PDF or DOC files are supported");
+      return;
+    }
+    setResumeFile(file);
+    setResumeDate(new Date().toLocaleDateString("en-GB"));
+    toast.success("Resume uploaded successfully");
+  };
+
+  const handleResumeDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleResumeFile(file);
+  };
+
+  const handleResumeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleResumeFile(file);
+  };
+
+  const toggleRole = (role: string) => {
+    setSelectedRoles((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role],
+    );
+  };
+
+  const toggleIndustry = (industry: string) => {
+    setSelectedIndustries((prev) =>
+      prev.includes(industry)
+        ? prev.filter((i) => i !== industry)
+        : [...prev, industry],
+    );
+  };
+
   const handleSave = async () => {
     const name = displayName.trim() || currentName.trim();
     if (!name) {
@@ -100,6 +214,18 @@ export default function ProfilePage() {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard`);
+  };
+
+  const openUrl = (url: string) => {
+    if (!url) return;
+    const full = url.startsWith("http") ? url : `https://${url}`;
+    window.open(full, "_blank", "noopener,noreferrer");
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const statCards = [
@@ -139,7 +265,7 @@ export default function ProfilePage() {
           <h1 className="text-xl font-bold text-foreground">Profile</h1>
         </div>
         <p className="text-muted-foreground text-sm">
-          Manage your account information and settings.
+          Manage your account information, social links, and career preferences.
         </p>
       </motion.div>
 
@@ -189,9 +315,17 @@ export default function ProfilePage() {
                     </>
                   ) : (
                     <>
-                      <p className="text-lg font-semibold text-foreground">
-                        {effectiveName || "Set your display name"}
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-lg font-semibold text-foreground">
+                          {effectiveName || "Set your display name"}
+                        </p>
+                        {openToOpportunities && (
+                          <Badge className="bg-emerald-500/15 text-emerald-600 border-0 text-xs font-semibold px-2 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 inline-block" />
+                            Open to Opportunities
+                          </Badge>
+                        )}
+                      </div>
                       {(email || currentEmail) && (
                         <p className="text-sm text-muted-foreground mt-0.5">
                           {email || currentEmail}
@@ -232,6 +366,41 @@ export default function ProfilePage() {
                           </p>
                         )}
                       </div>
+                      {/* Social links quick access */}
+                      {(linkedin || github) && (
+                        <div className="flex items-center gap-3 mt-2.5">
+                          {linkedin && (
+                            <button
+                              type="button"
+                              onClick={() => openUrl(linkedin)}
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                              aria-label="LinkedIn"
+                            >
+                              <Linkedin size={15} />
+                            </button>
+                          )}
+                          {github && (
+                            <button
+                              type="button"
+                              onClick={() => openUrl(github)}
+                              className="text-muted-foreground hover:text-foreground transition-colors"
+                              aria-label="GitHub"
+                            >
+                              <Github size={15} />
+                            </button>
+                          )}
+                          {portfolio && (
+                            <button
+                              type="button"
+                              onClick={() => openUrl(portfolio)}
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                              aria-label="Portfolio"
+                            >
+                              <Globe size={15} />
+                            </button>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs text-muted-foreground/60 mt-1.5 truncate font-mono">
                         {principal.slice(0, 24)}...
                       </p>
@@ -414,11 +583,482 @@ export default function ProfilePage() {
           </Card>
         </motion.div>
 
-        {/* Usage Stats */}
+        {/* Social & Links */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
+        >
+          <Card className="shadow-card border-border">
+            <CardHeader className="pb-3 px-5 pt-5">
+              <div className="flex items-center gap-2">
+                <Globe size={15} className="text-primary" />
+                <CardTitle className="text-sm font-semibold text-foreground">
+                  Social &amp; Links
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="px-5 pb-5 space-y-4">
+              {/* LinkedIn */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="linkedin"
+                  className="text-sm font-medium flex items-center gap-1.5"
+                >
+                  <Linkedin size={13} className="text-blue-600" />
+                  LinkedIn
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="linkedin"
+                    data-ocid="profile.linkedin.input"
+                    placeholder="https://linkedin.com/in/yourname"
+                    value={linkedin}
+                    onChange={(e) => setLinkedin(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!linkedin}
+                    onClick={() => openUrl(linkedin)}
+                    className="shrink-0"
+                  >
+                    <ExternalLink size={13} className="mr-1" />
+                    Visit
+                  </Button>
+                </div>
+              </div>
+
+              {/* GitHub */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="github"
+                  className="text-sm font-medium flex items-center gap-1.5"
+                >
+                  <Github size={13} />
+                  GitHub
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="github"
+                    data-ocid="profile.github.input"
+                    placeholder="https://github.com/yourhandle"
+                    value={github}
+                    onChange={(e) => setGithub(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!github}
+                    onClick={() => openUrl(github)}
+                    className="shrink-0"
+                  >
+                    <ExternalLink size={13} className="mr-1" />
+                    Visit
+                  </Button>
+                </div>
+              </div>
+
+              {/* Portfolio */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="portfolio"
+                  className="text-sm font-medium flex items-center gap-1.5"
+                >
+                  <Globe size={13} className="text-primary" />
+                  Portfolio / Website
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="portfolio"
+                    data-ocid="profile.portfolio.input"
+                    placeholder="https://yourwebsite.com"
+                    value={portfolio}
+                    onChange={(e) => setPortfolio(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!portfolio}
+                    onClick={() => openUrl(portfolio)}
+                    className="shrink-0"
+                  >
+                    <ExternalLink size={13} className="mr-1" />
+                    Visit
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Contact Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Card className="shadow-card border-border">
+            <CardHeader className="pb-3 px-5 pt-5">
+              <div className="flex items-center gap-2">
+                <Phone size={15} className="text-primary" />
+                <CardTitle className="text-sm font-semibold text-foreground">
+                  Contact Information
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="px-5 pb-5 space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="phone"
+                    className="text-sm font-medium flex items-center gap-1.5"
+                  >
+                    <Phone size={12} className="text-muted-foreground" />
+                    Phone Number
+                  </Label>
+                  <Input
+                    id="phone"
+                    data-ocid="profile.phone.input"
+                    placeholder="+1 (555) 000-0000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="twitter"
+                    className="text-sm font-medium flex items-center gap-1.5"
+                  >
+                    <AtSign size={12} className="text-muted-foreground" />
+                    Twitter / X Handle
+                  </Label>
+                  <Input
+                    id="twitter"
+                    data-ocid="profile.twitter.input"
+                    placeholder="@yourhandle"
+                    value={twitter}
+                    onChange={(e) => setTwitter(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="timezone"
+                  className="text-sm font-medium flex items-center gap-1.5"
+                >
+                  <Clock size={12} className="text-muted-foreground" />
+                  Timezone
+                </Label>
+                <Input
+                  id="timezone"
+                  data-ocid="profile.timezone.input"
+                  placeholder="e.g. UTC+5:30 / EST"
+                  value={timezone}
+                  onChange={(e) => setTimezone(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Preferred Contact Method
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {(["Email", "LinkedIn", "Phone"] as const).map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      data-ocid={`profile.contact.${method.toLowerCase()}.toggle`}
+                      onClick={() => setPreferredContact(method)}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                        preferredContact === method
+                          ? "bg-primary text-white border-primary"
+                          : "bg-muted text-muted-foreground border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Interests & Role Preferences */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.25 }}
+        >
+          <Card className="shadow-card border-border">
+            <CardHeader className="pb-3 px-5 pt-5">
+              <div className="flex items-center gap-2">
+                <Star size={15} className="text-primary" />
+                <CardTitle className="text-sm font-semibold text-foreground">
+                  Interests &amp; Role Preferences
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="px-5 pb-5 space-y-5">
+              {/* Interested Roles */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Interested Roles
+                  {selectedRoles.length > 0 && (
+                    <span className="ml-2 text-xs text-primary font-normal">
+                      {selectedRoles.length} selected
+                    </span>
+                  )}
+                </Label>
+                <div
+                  className="flex flex-wrap gap-2"
+                  data-ocid="profile.roles.panel"
+                >
+                  {AVAILABLE_ROLES.map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => toggleRole(role)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                        selectedRoles.includes(role)
+                          ? "bg-primary text-white border-primary shadow-sm"
+                          : "bg-muted text-muted-foreground border-border hover:border-primary/40"
+                      }`}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Industries of Interest */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Industries of Interest
+                  {selectedIndustries.length > 0 && (
+                    <span className="ml-2 text-xs text-primary font-normal">
+                      {selectedIndustries.length} selected
+                    </span>
+                  )}
+                </Label>
+                <div
+                  className="flex flex-wrap gap-2"
+                  data-ocid="profile.industries.panel"
+                >
+                  {AVAILABLE_INDUSTRIES.map((industry) => (
+                    <button
+                      key={industry}
+                      type="button"
+                      onClick={() => toggleIndustry(industry)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                        selectedIndustries.includes(industry)
+                          ? "bg-primary text-white border-primary shadow-sm"
+                          : "bg-muted text-muted-foreground border-border hover:border-primary/40"
+                      }`}
+                    >
+                      {industry}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Experience & Open to Opportunities */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="experience" className="text-sm font-medium">
+                    Years of Experience
+                  </Label>
+                  <Select value={experience} onValueChange={setExperience}>
+                    <SelectTrigger
+                      id="experience"
+                      data-ocid="profile.experience.select"
+                    >
+                      <SelectValue placeholder="Select range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0-1">0 – 1 year</SelectItem>
+                      <SelectItem value="1-3">1 – 3 years</SelectItem>
+                      <SelectItem value="3-5">3 – 5 years</SelectItem>
+                      <SelectItem value="5-10">5 – 10 years</SelectItem>
+                      <SelectItem value="10+">10+ years</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium">
+                    Open to Opportunities
+                  </Label>
+                  <div className="flex items-center gap-3 h-10">
+                    <Switch
+                      id="openToOpportunities"
+                      data-ocid="profile.opportunities.switch"
+                      checked={openToOpportunities}
+                      onCheckedChange={setOpenToOpportunities}
+                    />
+                    <Label
+                      htmlFor="openToOpportunities"
+                      className={`text-sm cursor-pointer select-none ${
+                        openToOpportunities
+                          ? "text-emerald-600 font-medium"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {openToOpportunities
+                        ? "Yes, actively looking"
+                        : "Not currently"}
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Resume & Documents */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <Card className="shadow-card border-border">
+            <CardHeader className="pb-3 px-5 pt-5">
+              <div className="flex items-center gap-2">
+                <FileText size={15} className="text-primary" />
+                <CardTitle className="text-sm font-semibold text-foreground">
+                  Resume &amp; Documents
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="px-5 pb-5 space-y-4">
+              {/* Upload zone */}
+              {!resumeFile ? (
+                <label
+                  htmlFor="resumeUpload"
+                  data-ocid="profile.resume.dropzone"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragOver(true);
+                  }}
+                  onDragLeave={() => setIsDragOver(false)}
+                  onDrop={handleResumeDrop}
+                  className={`border-dashed border-2 rounded-lg p-8 text-center cursor-pointer transition-all block ${
+                    isDragOver
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50 hover:bg-muted/30"
+                  }`}
+                >
+                  <Upload
+                    size={32}
+                    className={`mx-auto mb-3 ${
+                      isDragOver ? "text-primary" : "text-muted-foreground/50"
+                    }`}
+                  />
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Drag &amp; drop your resume or click to browse
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Supports PDF, DOC, DOCX · Max 5MB
+                  </p>
+                  <input
+                    ref={resumeInputRef}
+                    id="resumeUpload"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    className="hidden"
+                    onChange={handleResumeInputChange}
+                    data-ocid="profile.resume.upload_button"
+                  />
+                </label>
+              ) : (
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border border-border">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <FileText size={18} className="text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {resumeFile.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-muted-foreground">
+                        {formatFileSize(resumeFile.size)}
+                      </p>
+                      {resumeDate && (
+                        <>
+                          <span className="text-muted-foreground/40 text-xs">
+                            ·
+                          </span>
+                          <p className="text-xs text-muted-foreground">
+                            Updated {resumeDate}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    data-ocid="profile.resume.delete_button"
+                    onClick={() => {
+                      setResumeFile(null);
+                      setResumeDate("");
+                    }}
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                    aria-label="Remove resume"
+                  >
+                    <X size={15} />
+                  </Button>
+                </div>
+              )}
+
+              {/* Cover Letter */}
+              <div className="space-y-1.5">
+                <Label htmlFor="coverLetter" className="text-sm font-medium">
+                  Cover Letter
+                  <span className="text-muted-foreground font-normal ml-1 text-xs">
+                    (optional)
+                  </span>
+                </Label>
+                <Textarea
+                  id="coverLetter"
+                  data-ocid="profile.coverletter.textarea"
+                  placeholder="Paste your cover letter or a brief introduction..."
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
+                  rows={4}
+                  className="resize-none"
+                />
+              </div>
+
+              {/* Template link */}
+              <div className="flex items-center gap-2 pt-1">
+                <ExternalLink size={13} className="text-primary shrink-0" />
+                <button
+                  type="button"
+                  className="text-sm text-primary hover:underline font-medium"
+                  onClick={() => toast.info("Resume template coming soon!")}
+                >
+                  Download sample resume template
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Usage Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.35 }}
         >
           <Card className="shadow-card border-border">
             <CardHeader className="pb-3 px-5 pt-5">
@@ -473,7 +1113,7 @@ export default function ProfilePage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
         >
           <Card className="shadow-card border-border">
             <CardHeader className="pb-3 px-5 pt-5">
