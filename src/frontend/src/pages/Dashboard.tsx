@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Link } from "@tanstack/react-router";
 import {
   Activity,
   ArrowUpRight,
@@ -418,12 +419,12 @@ export default function DashboardPage() {
                   <CardTitle className="text-sm font-semibold text-foreground">
                     Latest Reports Overview
                   </CardTitle>
-                  <button
-                    type="button"
+                  <Link
+                    to="/scout-history"
                     className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
                   >
                     View all <ArrowUpRight size={12} />
-                  </button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent className="px-0 pb-4">
@@ -615,12 +616,22 @@ export default function DashboardPage() {
               </a>
             </span>
             <div className="flex gap-3">
-              <span className="cursor-pointer hover:text-foreground">
+              <a
+                href="https://caffeine.ai/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground"
+              >
                 Terms
-              </span>
-              <span className="cursor-pointer hover:text-foreground">
+              </a>
+              <a
+                href="https://caffeine.ai/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground"
+              >
                 Privacy
-              </span>
+              </a>
             </div>
           </div>
         </footer>

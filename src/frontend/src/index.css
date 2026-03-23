@@ -7,45 +7,68 @@
 @layer base {
   :root {
     --radius: 0.5rem;
-    --background: 0.967 0.008 235;
-    --card: 1 0 0;
-    --card-foreground: 0.173 0.018 252;
-    --popover: 1 0 0;
-    --popover-foreground: 0.173 0.018 252;
-    --foreground: 0.173 0.018 252;
-    --border: 0.918 0.006 240;
-    --input: 0.918 0.006 240;
-    --primary: 0.511 0.214 254;
-    --primary-foreground: 1 0 0;
-    --secondary: 0.97 0.004 240;
-    --secondary-foreground: 0.521 0.015 255;
-    --muted: 0.97 0.004 240;
-    --muted-foreground: 0.521 0.015 255;
-    --accent: 0.94 0.04 254;
-    --accent-foreground: 0.511 0.214 254;
-    --destructive: 0.545 0.208 27;
+
+    /* ── Dreamcrafter Intelligence dark theme ────────────────────────────── */
+    /* Background:  #0B1220 */
+    --background: 0.14 0.038 255;
+    /* Card:        #0F1B2A */
+    --card: 0.17 0.038 247;
+    --card-foreground: 0.92 0.01 240;
+    /* Popover matches card */
+    --popover: 0.17 0.038 247;
+    --popover-foreground: 0.92 0.01 240;
+    /* Text */
+    --foreground: 0.92 0.01 240;
+    /* Border:       #223046 */
+    --border: 0.25 0.05 243;
+    --input: 0.25 0.05 243;
+    /* Primary:      #22D3EE  (cyan) */
+    --primary: 0.82 0.14 205;
+    --primary-foreground: 0.12 0.02 247;
+    /* Secondary: slightly lighter card */
+    --secondary: 0.2 0.04 247;
+    --secondary-foreground: 0.8 0.02 240;
+    /* Muted */
+    --muted: 0.2 0.04 247;
+    --muted-foreground: 0.58 0.03 240;
+    /* Accent:       #8B5CF6 (purple) */
+    --accent: 0.22 0.05 285;
+    --accent-foreground: 0.82 0.14 205;
+    /* Destructive */
+    --destructive: 0.55 0.22 27;
     --destructive-foreground: 1 0 0;
-    --ring: 0.511 0.214 254;
-    --chart-1: 0.511 0.214 254;
-    --chart-2: 0.588 0.163 143;
-    --chart-3: 0.769 0.188 70;
-    --chart-4: 0.827 0.133 84;
-    --chart-5: 0.627 0.265 303;
-    --sidebar: 0.148 0.034 254;
-    --sidebar-foreground: 0.85 0.02 240;
-    --sidebar-primary: 0.511 0.214 254;
-    --sidebar-primary-foreground: 1 0 0;
-    --sidebar-accent: 0.2 0.04 254;
-    --sidebar-accent-foreground: 1 0 0;
-    --sidebar-border: 0.22 0.03 254;
-    --sidebar-ring: 0.511 0.214 254;
-    --success: 0.588 0.163 143;
-    --success-foreground: 1 0 0;
+    /* Ring */
+    --ring: 0.82 0.14 205;
+    /* Success:      #34D399 (green) */
+    --success: 0.81 0.15 163;
+    --success-foreground: 0.12 0.02 247;
+    /* Charts */
+    --chart-1: 0.82 0.14 205; /* cyan   #22D3EE */
+    --chart-2: 0.81 0.15 163; /* green  #34D399 */
+    --chart-3: 0.59 0.22 285; /* purple #8B5CF6 */
+    --chart-4: 0.8 0.18 55; /* amber  */
+    --chart-5: 0.65 0.2 30; /* orange */
+    /* Sidebar (matches card / border palette) */
+    --sidebar: 0.17 0.038 247;
+    --sidebar-foreground: 0.92 0.01 240;
+    --sidebar-primary: 0.82 0.14 205;
+    --sidebar-primary-foreground: 0.12 0.02 247;
+    --sidebar-accent: 0.2 0.04 247;
+    --sidebar-accent-foreground: 0.92 0.01 240;
+    --sidebar-border: 0.25 0.05 243;
+    --sidebar-ring: 0.82 0.14 205;
   }
 
   * {
     @apply border-border;
   }
+
+  html,
+  body {
+    background-color: #0b1220;
+    color: #e2e8f0;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
   }

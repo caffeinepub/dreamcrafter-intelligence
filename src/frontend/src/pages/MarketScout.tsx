@@ -825,34 +825,507 @@ function generateScoutData(
 
   const summary = summaries[hash % summaries.length];
 
+  const KNOWN_COMPANY_OVERVIEWS: Record<string, CompanyOverview> = {
+    openai: {
+      founded: "2015",
+      hq: "San Francisco, CA",
+      ceo: "Sam Altman",
+      employees: "1,500+",
+      type: "Private",
+      industry: "AI Research",
+    },
+    google: {
+      founded: "1998",
+      hq: "Mountain View, CA",
+      ceo: "Sundar Pichai",
+      employees: "180,000+",
+      type: "Public",
+      industry: "Technology",
+    },
+    microsoft: {
+      founded: "1975",
+      hq: "Redmond, WA",
+      ceo: "Satya Nadella",
+      employees: "220,000+",
+      type: "Public",
+      industry: "Technology",
+    },
+    apple: {
+      founded: "1976",
+      hq: "Cupertino, CA",
+      ceo: "Tim Cook",
+      employees: "164,000+",
+      type: "Public",
+      industry: "Consumer Electronics",
+    },
+    amazon: {
+      founded: "1994",
+      hq: "Seattle, WA",
+      ceo: "Andy Jassy",
+      employees: "1,500,000+",
+      type: "Public",
+      industry: "E-Commerce & Cloud",
+    },
+    meta: {
+      founded: "2004",
+      hq: "Menlo Park, CA",
+      ceo: "Mark Zuckerberg",
+      employees: "86,000+",
+      type: "Public",
+      industry: "Social Media",
+    },
+    netflix: {
+      founded: "1997",
+      hq: "Los Gatos, CA",
+      ceo: "Ted Sarandos",
+      employees: "13,000+",
+      type: "Public",
+      industry: "Streaming",
+    },
+    tesla: {
+      founded: "2003",
+      hq: "Austin, TX",
+      ceo: "Elon Musk",
+      employees: "140,000+",
+      type: "Public",
+      industry: "Automotive/Energy",
+    },
+    stripe: {
+      founded: "2010",
+      hq: "San Francisco, CA",
+      ceo: "Patrick Collison",
+      employees: "8,000+",
+      type: "Private",
+      industry: "Fintech",
+    },
+    github: {
+      founded: "2008",
+      hq: "San Francisco, CA",
+      ceo: "Thomas Dohmke",
+      employees: "3,000+",
+      type: "Subsidiary",
+      industry: "Developer Tools",
+    },
+    vercel: {
+      founded: "2015",
+      hq: "San Francisco, CA",
+      ceo: "Guillermo Rauch",
+      employees: "500+",
+      type: "Private",
+      industry: "Cloud Infrastructure",
+    },
+    anthropic: {
+      founded: "2021",
+      hq: "San Francisco, CA",
+      ceo: "Dario Amodei",
+      employees: "500+",
+      type: "Private",
+      industry: "AI Research",
+    },
+    slack: {
+      founded: "2009",
+      hq: "San Francisco, CA",
+      ceo: "Lidiane Jones",
+      employees: "2,500+",
+      type: "Subsidiary",
+      industry: "Enterprise Software",
+    },
+    shopify: {
+      founded: "2006",
+      hq: "Ottawa, Canada",
+      ceo: "Tobi Lütke",
+      employees: "11,000+",
+      type: "Public",
+      industry: "E-Commerce",
+    },
+    figma: {
+      founded: "2012",
+      hq: "San Francisco, CA",
+      ceo: "Dylan Field",
+      employees: "1,000+",
+      type: "Private",
+      industry: "Design Tools",
+    },
+    notion: {
+      founded: "2013",
+      hq: "San Francisco, CA",
+      ceo: "Ivan Zhao",
+      employees: "500+",
+      type: "Private",
+      industry: "Productivity",
+    },
+    zoom: {
+      founded: "2011",
+      hq: "San Jose, CA",
+      ceo: "Eric Yuan",
+      employees: "7,000+",
+      type: "Public",
+      industry: "Communications",
+    },
+    salesforce: {
+      founded: "1999",
+      hq: "San Francisco, CA",
+      ceo: "Marc Benioff",
+      employees: "70,000+",
+      type: "Public",
+      industry: "CRM/Enterprise",
+    },
+    uber: {
+      founded: "2009",
+      hq: "San Francisco, CA",
+      ceo: "Dara Khosrowshahi",
+      employees: "32,000+",
+      type: "Public",
+      industry: "Transportation",
+    },
+    airbnb: {
+      founded: "2008",
+      hq: "San Francisco, CA",
+      ceo: "Brian Chesky",
+      employees: "6,000+",
+      type: "Public",
+      industry: "Travel & Hospitality",
+    },
+    spotify: {
+      founded: "2006",
+      hq: "Stockholm, Sweden",
+      ceo: "Daniel Ek",
+      employees: "9,500+",
+      type: "Public",
+      industry: "Music Streaming",
+    },
+    cloudflare: {
+      founded: "2009",
+      hq: "San Francisco, CA",
+      ceo: "Matthew Prince",
+      employees: "3,500+",
+      type: "Public",
+      industry: "Network Security",
+    },
+    linear: {
+      founded: "2019",
+      hq: "San Francisco, CA",
+      ceo: "Karri Saarinen",
+      employees: "100+",
+      type: "Private",
+      industry: "Project Management",
+    },
+    twilio: {
+      founded: "2008",
+      hq: "San Francisco, CA",
+      ceo: "Khozema Shipchandler",
+      employees: "6,000+",
+      type: "Public",
+      industry: "Communications",
+    },
+    atlassian: {
+      founded: "2002",
+      hq: "Sydney, Australia",
+      ceo: "Mike Cannon-Brookes",
+      employees: "11,000+",
+      type: "Public",
+      industry: "Enterprise Software",
+    },
+    dropbox: {
+      founded: "2007",
+      hq: "San Francisco, CA",
+      ceo: "Drew Houston",
+      employees: "2,500+",
+      type: "Public",
+      industry: "Cloud Storage",
+    },
+    hubspot: {
+      founded: "2006",
+      hq: "Cambridge, MA",
+      ceo: "Yamini Rangan",
+      employees: "7,000+",
+      type: "Public",
+      industry: "Marketing/CRM",
+    },
+    samsung: {
+      founded: "1969",
+      hq: "Seoul, South Korea",
+      ceo: "Jong-Hee Han",
+      employees: "270,000+",
+      type: "Public",
+      industry: "Consumer Electronics",
+    },
+    nvidia: {
+      founded: "1993",
+      hq: "Santa Clara, CA",
+      ceo: "Jensen Huang",
+      employees: "29,000+",
+      type: "Public",
+      industry: "Semiconductors",
+    },
+    oracle: {
+      founded: "1977",
+      hq: "Austin, TX",
+      ceo: "Safra Catz",
+      employees: "160,000+",
+      type: "Public",
+      industry: "Enterprise Software",
+    },
+    ibm: {
+      founded: "1911",
+      hq: "Armonk, NY",
+      ceo: "Arvind Krishna",
+      employees: "280,000+",
+      type: "Public",
+      industry: "Technology",
+    },
+    intel: {
+      founded: "1968",
+      hq: "Santa Clara, CA",
+      ceo: "Pat Gelsinger",
+      employees: "131,000+",
+      type: "Public",
+      industry: "Semiconductors",
+    },
+    adobe: {
+      founded: "1982",
+      hq: "San Jose, CA",
+      ceo: "Shantanu Narayen",
+      employees: "30,000+",
+      type: "Public",
+      industry: "Creative Software",
+    },
+    linkedin: {
+      founded: "2002",
+      hq: "Sunnyvale, CA",
+      ceo: "Ryan Roslansky",
+      employees: "20,000+",
+      type: "Subsidiary",
+      industry: "Professional Network",
+    },
+    twitter: {
+      founded: "2006",
+      hq: "San Francisco, CA",
+      ceo: "Linda Yaccarino",
+      employees: "1,500+",
+      type: "Private",
+      industry: "Social Media",
+    },
+    snap: {
+      founded: "2011",
+      hq: "Santa Monica, CA",
+      ceo: "Evan Spiegel",
+      employees: "5,200+",
+      type: "Public",
+      industry: "Social Media",
+    },
+    lyft: {
+      founded: "2012",
+      hq: "San Francisco, CA",
+      ceo: "David Risher",
+      employees: "4,000+",
+      type: "Public",
+      industry: "Transportation",
+    },
+    pinterest: {
+      founded: "2009",
+      hq: "San Francisco, CA",
+      ceo: "Bill Ready",
+      employees: "3,500+",
+      type: "Public",
+      industry: "Social Media",
+    },
+    palantir: {
+      founded: "2003",
+      hq: "Denver, CO",
+      ceo: "Alex Karp",
+      employees: "3,800+",
+      type: "Public",
+      industry: "Data Analytics",
+    },
+    databricks: {
+      founded: "2013",
+      hq: "San Francisco, CA",
+      ceo: "Ali Ghodsi",
+      employees: "6,000+",
+      type: "Private",
+      industry: "Data & AI",
+    },
+    snowflake: {
+      founded: "2012",
+      hq: "Bozeman, MT",
+      ceo: "Sridhar Ramaswamy",
+      employees: "6,500+",
+      type: "Public",
+      industry: "Cloud Data",
+    },
+    mongodb: {
+      founded: "2007",
+      hq: "New York, NY",
+      ceo: "Dev Ittycheria",
+      employees: "5,000+",
+      type: "Public",
+      industry: "Database",
+    },
+    datadog: {
+      founded: "2010",
+      hq: "New York, NY",
+      ceo: "Olivier Pomel",
+      employees: "5,000+",
+      type: "Public",
+      industry: "DevOps/Monitoring",
+    },
+    okta: {
+      founded: "2009",
+      hq: "San Francisco, CA",
+      ceo: "Todd McKinnon",
+      employees: "5,000+",
+      type: "Public",
+      industry: "Identity Security",
+    },
+    servicenow: {
+      founded: "2004",
+      hq: "Santa Clara, CA",
+      ceo: "Bill McDermott",
+      employees: "22,000+",
+      type: "Public",
+      industry: "Enterprise Software",
+    },
+    workday: {
+      founded: "2005",
+      hq: "Pleasanton, CA",
+      ceo: "Carl Eschenbach",
+      employees: "19,000+",
+      type: "Public",
+      industry: "HR/Finance Software",
+    },
+  };
+
   const overviewSets: CompanyOverview[] = [
     {
-      founded: String(2005 + (hash % 15)),
+      founded: String(2008 + (hash % 12)),
       hq: "San Francisco, CA",
       ceo: "Alex Rivera",
-      employees: "10,000–50,000",
+      employees: "5,000–20,000",
       type: "Public",
       industry: "Cloud Infrastructure",
     },
     {
-      founded: String(2010 + (hash % 10)),
+      founded: String(2012 + (hash % 8)),
       hq: "New York, NY",
       ceo: "Jordan Kim",
-      employees: "1,000–10,000",
+      employees: "1,000–5,000",
       type: "Private",
       industry: "AI Research",
     },
     {
-      founded: String(2015 + (hash % 8)),
+      founded: String(2004 + (hash % 14)),
       hq: "Seattle, WA",
       ceo: "Morgan Chen",
       employees: "50,000+",
       type: "Public",
       industry: "Enterprise Software",
     },
+    {
+      founded: String(2010 + (hash % 10)),
+      hq: "Austin, TX",
+      ceo: "Taylor Brooks",
+      employees: "2,000–10,000",
+      type: "Public",
+      industry: "Fintech",
+    },
+    {
+      founded: String(2006 + (hash % 12)),
+      hq: "London, UK",
+      ceo: "Sam Patterson",
+      employees: "10,000–30,000",
+      type: "Public",
+      industry: "Digital Media",
+    },
+    {
+      founded: String(2014 + (hash % 7)),
+      hq: "Berlin, Germany",
+      ceo: "Lena Müller",
+      employees: "500–2,000",
+      type: "Private",
+      industry: "SaaS",
+    },
+    {
+      founded: String(2009 + (hash % 10)),
+      hq: "Tokyo, Japan",
+      ceo: "Hiroshi Tanaka",
+      employees: "20,000–60,000",
+      type: "Public",
+      industry: "Consumer Electronics",
+    },
+    {
+      founded: String(2011 + (hash % 9)),
+      hq: "Singapore",
+      ceo: "Wei Zhang",
+      employees: "3,000–12,000",
+      type: "Public",
+      industry: "E-Commerce",
+    },
+    {
+      founded: String(2007 + (hash % 11)),
+      hq: "Toronto, Canada",
+      ceo: "Chris Nguyen",
+      employees: "1,500–8,000",
+      type: "Private",
+      industry: "HealthTech",
+    },
+    {
+      founded: String(2013 + (hash % 8)),
+      hq: "Paris, France",
+      ceo: "Sophie Leclerc",
+      employees: "800–4,000",
+      type: "Private",
+      industry: "EdTech",
+    },
+    {
+      founded: String(2015 + (hash % 6)),
+      hq: "Amsterdam, Netherlands",
+      ceo: "Jan de Vries",
+      employees: "200–1,000",
+      type: "Private",
+      industry: "Cybersecurity",
+    },
+    {
+      founded: String(2003 + (hash % 15)),
+      hq: "Sydney, Australia",
+      ceo: "Emma Walsh",
+      employees: "5,000–25,000",
+      type: "Public",
+      industry: "Telecommunications",
+    },
+    {
+      founded: String(2016 + (hash % 6)),
+      hq: "Bangalore, India",
+      ceo: "Priya Sharma",
+      employees: "10,000–40,000",
+      type: "Public",
+      industry: "IT Services",
+    },
+    {
+      founded: String(2001 + (hash % 18)),
+      hq: "Chicago, IL",
+      ceo: "Marcus Johnson",
+      employees: "30,000+",
+      type: "Public",
+      industry: "Financial Services",
+    },
+    {
+      founded: String(2018 + (hash % 5)),
+      hq: "Miami, FL",
+      ceo: "Isabella Cruz",
+      employees: "100–500",
+      type: "Private",
+      industry: "Logistics & Supply Chain",
+    },
   ];
 
-  const companyOverview = overviewSets[hash % overviewSets.length];
+  const knownKey = c
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9]/g, "");
+  const companyOverview =
+    KNOWN_COMPANY_OVERVIEWS[knownKey] ??
+    overviewSets[hash % overviewSets.length];
 
   return {
     companyName: c,
@@ -1320,7 +1793,7 @@ function ActivityCharts({ company }: { company: string }) {
             <ResponsiveContainer width="100%" height={220}>
               <BarChart
                 data={weeklyData}
-                margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+                margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -1337,6 +1810,9 @@ function ActivityCharts({ company }: { company: string }) {
                   tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   axisLine={false}
                   tickLine={false}
+                  domain={[0, "auto"]}
+                  tickCount={5}
+                  width={35}
                 />
                 <Tooltip contentStyle={chartTooltipStyle} />
                 <Legend
@@ -1370,7 +1846,7 @@ function ActivityCharts({ company }: { company: string }) {
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart
                 data={monthlyData}
-                margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+                margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
               >
                 <defs>
                   <linearGradient id="gradSignals" x1="0" y1="0" x2="0" y2="1">
@@ -1409,6 +1885,9 @@ function ActivityCharts({ company }: { company: string }) {
                   tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   axisLine={false}
                   tickLine={false}
+                  domain={[0, "auto"]}
+                  tickCount={5}
+                  width={35}
                 />
                 <Tooltip contentStyle={chartTooltipStyle} />
                 <Legend
@@ -1609,7 +2088,10 @@ function OpenRolesSection({ companyName }: { companyName: string }) {
               className="flex items-center gap-1 text-xs font-medium text-primary hover:underline flex-shrink-0"
               data-ocid={`market_scout.open_roles.apply.button.${idx + 1}`}
               onClick={() =>
-                window.open("https://www.linkedin.com/jobs/", "_blank")
+                window.open(
+                  `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${item.role} ${companyName}`)}`,
+                  "_blank",
+                )
               }
             >
               Apply Now <ExternalLink size={10} />
@@ -1774,10 +2256,7 @@ function ResultPanel({
           {/* 2. Intelligence Sources Card */}
           <IntelligenceSourcesCard companyName={result.companyName} />
 
-          {/* 3. Live Analysis Report (per-category) */}
-          <LiveAnalysisReport features={result.features} onExport={exportTxt} />
-
-          {/* 4. Week-over-week intelligence */}
+          {/* 3. Week-over-week intelligence */}
           <WeekOverWeekStats company={result.companyName} />
 
           {/* 5. AI Summary */}
@@ -1811,8 +2290,11 @@ function ResultPanel({
             sources={result.sources}
           />
 
-          {/* 8. Activity Charts */}
+          {/* 7. Activity Charts */}
           <ActivityCharts company={result.companyName} />
+
+          {/* 8. Live Analysis Report */}
+          <LiveAnalysisReport features={result.features} onExport={exportTxt} />
 
           {/* 9. Trending Intel Signals */}
           <TrendingIntelSignals features={result.features} />

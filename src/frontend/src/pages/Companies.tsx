@@ -573,19 +573,8 @@ export default function CompaniesPage() {
         </div>
 
         {/* Results bar */}
-        <div className="flex items-center justify-between mb-5">
-          <p className="text-sm text-muted-foreground">
-            Showing{" "}
-            <span className="text-foreground font-semibold">
-              {filtered.length}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground font-semibold">
-              {companies.length}
-            </span>{" "}
-            companies
-          </p>
-          {hasFilters && (
+        {hasFilters && (
+          <div className="flex items-center justify-end mb-5">
             <Button
               variant="ghost"
               size="sm"
@@ -595,8 +584,8 @@ export default function CompaniesPage() {
             >
               <X size={12} /> Clear filters
             </Button>
-          )}
-        </div>
+          </div>
+        )}
 
         {hasFilters && (
           <div className="flex flex-wrap gap-2 mb-5">

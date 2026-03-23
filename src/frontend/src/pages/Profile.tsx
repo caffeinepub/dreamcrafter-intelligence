@@ -43,7 +43,6 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
-  useApiKeys,
   useSaveUserProfile,
   useUsageStats,
   useUserProfile,
@@ -81,7 +80,6 @@ export default function ProfilePage() {
   const { identity } = useInternetIdentity();
   const { data: profile, isLoading } = useUserProfile();
   const { data: usageStats, isLoading: statsLoading } = useUsageStats();
-  const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
   const saveProfile = useSaveUserProfile();
 
   // Existing fields
@@ -253,7 +251,8 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="p-6 max-w-3xl" data-ocid="profile.page">
+    <div className="p-6 max-w-5xl mx-auto" data-ocid="profile.page">
+      {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -270,7 +269,7 @@ export default function ProfilePage() {
       </motion.div>
 
       <div className="space-y-5">
-        {/* Header card with avatar */}
+        {/* Header card with avatar — full width */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -331,7 +330,6 @@ export default function ProfilePage() {
                           {email || currentEmail}
                         </p>
                       )}
-                      {/* Extra profile details as chips */}
                       <div className="flex flex-wrap gap-2 mt-2">
                         {jobTitle && (
                           <Badge
@@ -366,7 +364,6 @@ export default function ProfilePage() {
                           </p>
                         )}
                       </div>
-                      {/* Social links quick access */}
                       {(linkedin || github) && (
                         <div className="flex items-center gap-3 mt-2.5">
                           {linkedin && (
@@ -417,382 +414,400 @@ export default function ProfilePage() {
           </Card>
         </motion.div>
 
-        {/* Edit form */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <Card className="shadow-card border-border">
-            <CardHeader className="pb-3 px-5 pt-5">
-              <CardTitle className="text-sm font-semibold text-foreground">
-                Edit Profile
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 pb-5 space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="displayName" className="text-sm font-medium">
-                    Display Name
-                  </Label>
-                  <Input
-                    id="displayName"
-                    data-ocid="profile.input"
-                    placeholder={currentName || "Enter your display name"}
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="profileEmail" className="text-sm font-medium">
-                    Email Address
-                  </Label>
-                  <Input
-                    id="profileEmail"
-                    data-ocid="profile.email.input"
-                    type="email"
-                    placeholder={currentEmail || "you@example.com"}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="jobTitle" className="text-sm font-medium">
-                    Job Title
-                    <span className="text-muted-foreground font-normal ml-1 text-xs">
-                      (optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="jobTitle"
-                    data-ocid="profile.jobtitle.input"
-                    placeholder="e.g. Senior Engineer"
-                    value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="organization" className="text-sm font-medium">
-                    Company / Organization
-                    <span className="text-muted-foreground font-normal ml-1 text-xs">
-                      (optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="organization"
-                    data-ocid="profile.organization.input"
-                    placeholder="e.g. Acme Corp"
-                    value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="location" className="text-sm font-medium">
-                  Location
-                  <span className="text-muted-foreground font-normal ml-1 text-xs">
-                    (optional)
-                  </span>
-                </Label>
-                <Input
-                  id="location"
-                  data-ocid="profile.location.input"
-                  placeholder="City, Country"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="bio" className="text-sm font-medium">
-                  Bio
-                  <span className="text-muted-foreground font-normal ml-1 text-xs">
-                    (optional)
-                  </span>
-                </Label>
-                <Textarea
-                  id="bio"
-                  data-ocid="profile.bio.textarea"
-                  placeholder="Tell us about yourself..."
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  rows={3}
-                  className="resize-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Principal ID</Label>
-                <div className="flex gap-2">
-                  <Input
-                    readOnly
-                    value={principal}
-                    className="text-muted-foreground text-xs font-mono bg-muted border-muted flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    data-ocid="profile.copy.button"
-                    onClick={() => copyToClipboard(principal, "Principal ID")}
-                    className="shrink-0"
-                  >
-                    <Copy size={14} />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Your unique identifier on the Internet Computer.
-                </p>
-              </div>
-
-              {avatarPreview && (
-                <p className="text-xs text-primary font-medium flex items-center gap-1">
-                  <Camera size={12} />
-                  New avatar selected — save to apply
-                </p>
-              )}
-
-              <Button
-                onClick={handleSave}
-                disabled={
-                  saveProfile.isPending ||
-                  (!displayName.trim() && !currentName && !avatarBytes)
-                }
-                data-ocid="profile.save.submit_button"
-                className="w-full sm:w-auto"
-              >
-                {saveProfile.isPending ? (
-                  <>
-                    <Loader2 size={14} className="mr-1.5 animate-spin" />
-                    Saving...
-                  </>
-                ) : saved ? (
-                  <>
-                    <CheckCircle size={14} className="mr-1.5" />
-                    Saved!
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Social & Links */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.15 }}
-        >
-          <Card className="shadow-card border-border">
-            <CardHeader className="pb-3 px-5 pt-5">
-              <div className="flex items-center gap-2">
-                <Globe size={15} className="text-primary" />
+        {/* Two-column layout: Edit Profile (left) + Social & Contact (right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* LEFT — Edit Profile */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <Card className="shadow-card border-border h-full">
+              <CardHeader className="pb-3 px-5 pt-5">
                 <CardTitle className="text-sm font-semibold text-foreground">
-                  Social &amp; Links
+                  Edit Profile
                 </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="px-5 pb-5 space-y-4">
-              {/* LinkedIn */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="linkedin"
-                  className="text-sm font-medium flex items-center gap-1.5"
-                >
-                  <Linkedin size={13} className="text-blue-600" />
-                  LinkedIn
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="linkedin"
-                    data-ocid="profile.linkedin.input"
-                    placeholder="https://linkedin.com/in/yourname"
-                    value={linkedin}
-                    onChange={(e) => setLinkedin(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={!linkedin}
-                    onClick={() => openUrl(linkedin)}
-                    className="shrink-0"
-                  >
-                    <ExternalLink size={13} className="mr-1" />
-                    Visit
-                  </Button>
-                </div>
-              </div>
-
-              {/* GitHub */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="github"
-                  className="text-sm font-medium flex items-center gap-1.5"
-                >
-                  <Github size={13} />
-                  GitHub
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="github"
-                    data-ocid="profile.github.input"
-                    placeholder="https://github.com/yourhandle"
-                    value={github}
-                    onChange={(e) => setGithub(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={!github}
-                    onClick={() => openUrl(github)}
-                    className="shrink-0"
-                  >
-                    <ExternalLink size={13} className="mr-1" />
-                    Visit
-                  </Button>
-                </div>
-              </div>
-
-              {/* Portfolio */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="portfolio"
-                  className="text-sm font-medium flex items-center gap-1.5"
-                >
-                  <Globe size={13} className="text-primary" />
-                  Portfolio / Website
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="portfolio"
-                    data-ocid="profile.portfolio.input"
-                    placeholder="https://yourwebsite.com"
-                    value={portfolio}
-                    onChange={(e) => setPortfolio(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={!portfolio}
-                    onClick={() => openUrl(portfolio)}
-                    className="shrink-0"
-                  >
-                    <ExternalLink size={13} className="mr-1" />
-                    Visit
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Contact Information */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-        >
-          <Card className="shadow-card border-border">
-            <CardHeader className="pb-3 px-5 pt-5">
-              <div className="flex items-center gap-2">
-                <Phone size={15} className="text-primary" />
-                <CardTitle className="text-sm font-semibold text-foreground">
-                  Contact Information
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="px-5 pb-5 space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="phone"
-                    className="text-sm font-medium flex items-center gap-1.5"
-                  >
-                    <Phone size={12} className="text-muted-foreground" />
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    data-ocid="profile.phone.input"
-                    placeholder="+1 (555) 000-0000"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="twitter"
-                    className="text-sm font-medium flex items-center gap-1.5"
-                  >
-                    <AtSign size={12} className="text-muted-foreground" />
-                    Twitter / X Handle
-                  </Label>
-                  <Input
-                    id="twitter"
-                    data-ocid="profile.twitter.input"
-                    placeholder="@yourhandle"
-                    value={twitter}
-                    onChange={(e) => setTwitter(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="timezone"
-                  className="text-sm font-medium flex items-center gap-1.5"
-                >
-                  <Clock size={12} className="text-muted-foreground" />
-                  Timezone
-                </Label>
-                <Input
-                  id="timezone"
-                  data-ocid="profile.timezone.input"
-                  placeholder="e.g. UTC+5:30 / EST"
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Preferred Contact Method
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {(["Email", "LinkedIn", "Phone"] as const).map((method) => (
-                    <button
-                      key={method}
-                      type="button"
-                      data-ocid={`profile.contact.${method.toLowerCase()}.toggle`}
-                      onClick={() => setPreferredContact(method)}
-                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
-                        preferredContact === method
-                          ? "bg-primary text-white border-primary"
-                          : "bg-muted text-muted-foreground border-border hover:border-primary/50"
-                      }`}
+              </CardHeader>
+              <CardContent className="px-5 pb-5 space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="displayName"
+                      className="text-sm font-medium"
                     >
-                      {method}
-                    </button>
-                  ))}
+                      Display Name
+                    </Label>
+                    <Input
+                      id="displayName"
+                      data-ocid="profile.input"
+                      placeholder={currentName || "Enter your display name"}
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="profileEmail"
+                      className="text-sm font-medium"
+                    >
+                      Email Address
+                    </Label>
+                    <Input
+                      id="profileEmail"
+                      data-ocid="profile.email.input"
+                      type="email"
+                      placeholder={currentEmail || "you@example.com"}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* Interests & Role Preferences */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="jobTitle" className="text-sm font-medium">
+                      Job Title
+                      <span className="text-muted-foreground font-normal ml-1 text-xs">
+                        (optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="jobTitle"
+                      data-ocid="profile.jobtitle.input"
+                      placeholder="e.g. Senior Engineer"
+                      value={jobTitle}
+                      onChange={(e) => setJobTitle(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="organization"
+                      className="text-sm font-medium"
+                    >
+                      Company / Organization
+                      <span className="text-muted-foreground font-normal ml-1 text-xs">
+                        (optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="organization"
+                      data-ocid="profile.organization.input"
+                      placeholder="e.g. Acme Corp"
+                      value={organization}
+                      onChange={(e) => setOrganization(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="location" className="text-sm font-medium">
+                    Location
+                    <span className="text-muted-foreground font-normal ml-1 text-xs">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="location"
+                    data-ocid="profile.location.input"
+                    placeholder="City, Country"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="bio" className="text-sm font-medium">
+                    Bio
+                    <span className="text-muted-foreground font-normal ml-1 text-xs">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Textarea
+                    id="bio"
+                    data-ocid="profile.bio.textarea"
+                    placeholder="Tell us about yourself..."
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    rows={3}
+                    className="resize-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium">Principal ID</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      readOnly
+                      value={principal}
+                      className="text-muted-foreground text-xs font-mono bg-muted border-muted flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      data-ocid="profile.copy.button"
+                      onClick={() => copyToClipboard(principal, "Principal ID")}
+                      className="shrink-0"
+                    >
+                      <Copy size={14} />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Your unique identifier on the Internet Computer.
+                  </p>
+                </div>
+
+                {avatarPreview && (
+                  <p className="text-xs text-primary font-medium flex items-center gap-1">
+                    <Camera size={12} />
+                    New avatar selected — save to apply
+                  </p>
+                )}
+
+                <Button
+                  onClick={handleSave}
+                  disabled={
+                    saveProfile.isPending ||
+                    (!displayName.trim() && !currentName && !avatarBytes)
+                  }
+                  data-ocid="profile.save.submit_button"
+                  className="w-full"
+                >
+                  {saveProfile.isPending ? (
+                    <>
+                      <Loader2 size={14} className="mr-1.5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : saved ? (
+                    <>
+                      <CheckCircle size={14} className="mr-1.5" />
+                      Saved!
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* RIGHT column — Social & Links + Contact stacked */}
+          <div className="flex flex-col gap-5">
+            {/* Social & Links */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.15 }}
+            >
+              <Card className="shadow-card border-border">
+                <CardHeader className="pb-3 px-5 pt-5">
+                  <div className="flex items-center gap-2">
+                    <Globe size={15} className="text-primary" />
+                    <CardTitle className="text-sm font-semibold text-foreground">
+                      Social &amp; Links
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-5 pb-5 space-y-4">
+                  {/* LinkedIn */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="linkedin"
+                      className="text-sm font-medium flex items-center gap-1.5"
+                    >
+                      <Linkedin size={13} className="text-blue-600" />
+                      LinkedIn
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="linkedin"
+                        data-ocid="profile.linkedin.input"
+                        placeholder="https://linkedin.com/in/yourname"
+                        value={linkedin}
+                        onChange={(e) => setLinkedin(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!linkedin}
+                        onClick={() => openUrl(linkedin)}
+                        className="shrink-0"
+                      >
+                        <ExternalLink size={13} className="mr-1" />
+                        Visit
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* GitHub */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="github"
+                      className="text-sm font-medium flex items-center gap-1.5"
+                    >
+                      <Github size={13} />
+                      GitHub
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="github"
+                        data-ocid="profile.github.input"
+                        placeholder="https://github.com/yourhandle"
+                        value={github}
+                        onChange={(e) => setGithub(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!github}
+                        onClick={() => openUrl(github)}
+                        className="shrink-0"
+                      >
+                        <ExternalLink size={13} className="mr-1" />
+                        Visit
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Portfolio */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="portfolio"
+                      className="text-sm font-medium flex items-center gap-1.5"
+                    >
+                      <Globe size={13} className="text-primary" />
+                      Portfolio / Website
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="portfolio"
+                        data-ocid="profile.portfolio.input"
+                        placeholder="https://yourwebsite.com"
+                        value={portfolio}
+                        onChange={(e) => setPortfolio(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!portfolio}
+                        onClick={() => openUrl(portfolio)}
+                        className="shrink-0"
+                      >
+                        <ExternalLink size={13} className="mr-1" />
+                        Visit
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Contact Information */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="flex-1"
+            >
+              <Card className="shadow-card border-border h-full">
+                <CardHeader className="pb-3 px-5 pt-5">
+                  <div className="flex items-center gap-2">
+                    <Phone size={15} className="text-primary" />
+                    <CardTitle className="text-sm font-semibold text-foreground">
+                      Contact Information
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-5 pb-5 space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="phone"
+                        className="text-sm font-medium flex items-center gap-1.5"
+                      >
+                        <Phone size={12} className="text-muted-foreground" />
+                        Phone Number
+                      </Label>
+                      <Input
+                        id="phone"
+                        data-ocid="profile.phone.input"
+                        placeholder="+1 (555) 000-0000"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="twitter"
+                        className="text-sm font-medium flex items-center gap-1.5"
+                      >
+                        <AtSign size={12} className="text-muted-foreground" />
+                        Twitter / X Handle
+                      </Label>
+                      <Input
+                        id="twitter"
+                        data-ocid="profile.twitter.input"
+                        placeholder="@yourhandle"
+                        value={twitter}
+                        onChange={(e) => setTwitter(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="timezone"
+                      className="text-sm font-medium flex items-center gap-1.5"
+                    >
+                      <Clock size={12} className="text-muted-foreground" />
+                      Timezone
+                    </Label>
+                    <Input
+                      id="timezone"
+                      data-ocid="profile.timezone.input"
+                      placeholder="e.g. UTC+5:30 / EST"
+                      value={timezone}
+                      onChange={(e) => setTimezone(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">
+                      Preferred Contact Method
+                    </Label>
+                    <div className="flex flex-wrap gap-2">
+                      {(["Email", "LinkedIn", "Phone"] as const).map(
+                        (method) => (
+                          <button
+                            key={method}
+                            type="button"
+                            data-ocid={`profile.contact.${method.toLowerCase()}.toggle`}
+                            onClick={() => setPreferredContact(method)}
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                              preferredContact === method
+                                ? "bg-primary text-white border-primary"
+                                : "bg-muted text-muted-foreground border-border hover:border-primary/50"
+                            }`}
+                          >
+                            {method}
+                          </button>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Interests & Role Preferences — full width */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -808,70 +823,72 @@ export default function ProfilePage() {
               </div>
             </CardHeader>
             <CardContent className="px-5 pb-5 space-y-5">
-              {/* Interested Roles */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Interested Roles
-                  {selectedRoles.length > 0 && (
-                    <span className="ml-2 text-xs text-primary font-normal">
-                      {selectedRoles.length} selected
-                    </span>
-                  )}
-                </Label>
-                <div
-                  className="flex flex-wrap gap-2"
-                  data-ocid="profile.roles.panel"
-                >
-                  {AVAILABLE_ROLES.map((role) => (
-                    <button
-                      key={role}
-                      type="button"
-                      onClick={() => toggleRole(role)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                        selectedRoles.includes(role)
-                          ? "bg-primary text-white border-primary shadow-sm"
-                          : "bg-muted text-muted-foreground border-border hover:border-primary/40"
-                      }`}
-                    >
-                      {role}
-                    </button>
-                  ))}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Interested Roles */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Interested Roles
+                    {selectedRoles.length > 0 && (
+                      <span className="ml-2 text-xs text-primary font-normal">
+                        {selectedRoles.length} selected
+                      </span>
+                    )}
+                  </Label>
+                  <div
+                    className="flex flex-wrap gap-2"
+                    data-ocid="profile.roles.panel"
+                  >
+                    {AVAILABLE_ROLES.map((role) => (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={() => toggleRole(role)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                          selectedRoles.includes(role)
+                            ? "bg-primary text-white border-primary shadow-sm"
+                            : "bg-muted text-muted-foreground border-border hover:border-primary/40"
+                        }`}
+                      >
+                        {role}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Industries of Interest */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Industries of Interest
-                  {selectedIndustries.length > 0 && (
-                    <span className="ml-2 text-xs text-primary font-normal">
-                      {selectedIndustries.length} selected
-                    </span>
-                  )}
-                </Label>
-                <div
-                  className="flex flex-wrap gap-2"
-                  data-ocid="profile.industries.panel"
-                >
-                  {AVAILABLE_INDUSTRIES.map((industry) => (
-                    <button
-                      key={industry}
-                      type="button"
-                      onClick={() => toggleIndustry(industry)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                        selectedIndustries.includes(industry)
-                          ? "bg-primary text-white border-primary shadow-sm"
-                          : "bg-muted text-muted-foreground border-border hover:border-primary/40"
-                      }`}
-                    >
-                      {industry}
-                    </button>
-                  ))}
+                {/* Industries of Interest */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Industries of Interest
+                    {selectedIndustries.length > 0 && (
+                      <span className="ml-2 text-xs text-primary font-normal">
+                        {selectedIndustries.length} selected
+                      </span>
+                    )}
+                  </Label>
+                  <div
+                    className="flex flex-wrap gap-2"
+                    data-ocid="profile.industries.panel"
+                  >
+                    {AVAILABLE_INDUSTRIES.map((industry) => (
+                      <button
+                        key={industry}
+                        type="button"
+                        onClick={() => toggleIndustry(industry)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                          selectedIndustries.includes(industry)
+                            ? "bg-primary text-white border-primary shadow-sm"
+                            : "bg-muted text-muted-foreground border-border hover:border-primary/40"
+                        }`}
+                      >
+                        {industry}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Experience & Open to Opportunities */}
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4 pt-1">
                 <div className="space-y-1.5">
                   <Label htmlFor="experience" className="text-sm font-medium">
                     Years of Experience
@@ -923,277 +940,196 @@ export default function ProfilePage() {
           </Card>
         </motion.div>
 
-        {/* Resume & Documents */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-        >
-          <Card className="shadow-card border-border">
-            <CardHeader className="pb-3 px-5 pt-5">
-              <div className="flex items-center gap-2">
-                <FileText size={15} className="text-primary" />
-                <CardTitle className="text-sm font-semibold text-foreground">
-                  Resume &amp; Documents
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="px-5 pb-5 space-y-4">
-              {/* Upload zone */}
-              {!resumeFile ? (
-                <label
-                  htmlFor="resumeUpload"
-                  data-ocid="profile.resume.dropzone"
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(true);
-                  }}
-                  onDragLeave={() => setIsDragOver(false)}
-                  onDrop={handleResumeDrop}
-                  className={`border-dashed border-2 rounded-lg p-8 text-center cursor-pointer transition-all block ${
-                    isDragOver
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50 hover:bg-muted/30"
-                  }`}
-                >
-                  <Upload
-                    size={32}
-                    className={`mx-auto mb-3 ${
-                      isDragOver ? "text-primary" : "text-muted-foreground/50"
-                    }`}
-                  />
-                  <p className="text-sm font-medium text-foreground mb-1">
-                    Drag &amp; drop your resume or click to browse
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Supports PDF, DOC, DOCX · Max 5MB
-                  </p>
-                  <input
-                    ref={resumeInputRef}
-                    id="resumeUpload"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    className="hidden"
-                    onChange={handleResumeInputChange}
-                    data-ocid="profile.resume.upload_button"
-                  />
-                </label>
-              ) : (
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border border-border">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <FileText size={18} className="text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {resumeFile.name}
-                    </p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-xs text-muted-foreground">
-                        {formatFileSize(resumeFile.size)}
-                      </p>
-                      {resumeDate && (
-                        <>
-                          <span className="text-muted-foreground/40 text-xs">
-                            ·
-                          </span>
-                          <p className="text-xs text-muted-foreground">
-                            Updated {resumeDate}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    data-ocid="profile.resume.delete_button"
-                    onClick={() => {
-                      setResumeFile(null);
-                      setResumeDate("");
-                    }}
-                    className="shrink-0 text-muted-foreground hover:text-destructive"
-                    aria-label="Remove resume"
-                  >
-                    <X size={15} />
-                  </Button>
-                </div>
-              )}
-
-              {/* Cover Letter */}
-              <div className="space-y-1.5">
-                <Label htmlFor="coverLetter" className="text-sm font-medium">
-                  Cover Letter
-                  <span className="text-muted-foreground font-normal ml-1 text-xs">
-                    (optional)
-                  </span>
-                </Label>
-                <Textarea
-                  id="coverLetter"
-                  data-ocid="profile.coverletter.textarea"
-                  placeholder="Paste your cover letter or a brief introduction..."
-                  value={coverLetter}
-                  onChange={(e) => setCoverLetter(e.target.value)}
-                  rows={4}
-                  className="resize-none"
-                />
-              </div>
-
-              {/* Template link */}
-              <div className="flex items-center gap-2 pt-1">
-                <ExternalLink size={13} className="text-primary shrink-0" />
-                <button
-                  type="button"
-                  className="text-sm text-primary hover:underline font-medium"
-                  onClick={() => toast.info("Resume template coming soon!")}
-                >
-                  Download sample resume template
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Usage Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.35 }}
-        >
-          <Card className="shadow-card border-border">
-            <CardHeader className="pb-3 px-5 pt-5">
-              <div className="flex items-center gap-2">
-                <BarChart3 size={15} className="text-primary" />
-                <CardTitle className="text-sm font-semibold text-foreground">
-                  Usage Statistics
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              <div
-                className="grid grid-cols-3 gap-4"
-                data-ocid="profile.stats.panel"
-              >
-                {statCards.map((stat) => {
-                  const Icon = stat.icon;
-                  return (
-                    <div
-                      key={stat.label}
-                      className="text-center p-4 rounded-lg bg-muted/50"
-                    >
-                      {statsLoading ? (
-                        <>
-                          <Skeleton className="h-8 w-16 mx-auto mb-2" />
-                          <Skeleton className="h-4 w-20 mx-auto" />
-                        </>
-                      ) : (
-                        <>
-                          <div
-                            className={`w-9 h-9 rounded-lg ${stat.bg} flex items-center justify-center mx-auto mb-2`}
-                          >
-                            <Icon size={16} className={stat.color} />
-                          </div>
-                          <p className="text-2xl font-bold text-foreground">
-                            {stat.value.toString()}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {stat.label}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* API Keys */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
-        >
-          <Card className="shadow-card border-border">
-            <CardHeader className="pb-3 px-5 pt-5">
-              <div className="flex items-center justify-between">
+        {/* Resume & Documents + Usage Stats — two columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Resume & Documents */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+          >
+            <Card className="shadow-card border-border h-full">
+              <CardHeader className="pb-3 px-5 pt-5">
                 <div className="flex items-center gap-2">
-                  <Shield size={15} className="text-primary" />
+                  <FileText size={15} className="text-primary" />
                   <CardTitle className="text-sm font-semibold text-foreground">
-                    API Keys
+                    Resume &amp; Documents
                   </CardTitle>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="px-5 pb-5">
-              {keysLoading ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              ) : !apiKeys || apiKeys.length === 0 ? (
-                <div
-                  className="text-center py-6"
-                  data-ocid="profile.apikeys.empty_state"
-                >
-                  <Shield
-                    size={28}
-                    className="text-muted-foreground/30 mx-auto mb-2"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    No API keys yet.
-                  </p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">
-                    Generate keys from the{" "}
-                    <a
-                      href="/api-keys"
-                      className="text-primary hover:underline"
-                    >
-                      API Keys page
-                    </a>
-                    .
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2" data-ocid="profile.apikeys.list">
-                  {apiKeys.map((key, i) => (
-                    <div
-                      key={key.name}
-                      data-ocid={`profile.apikey.item.${i + 1}`}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {key.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {key.isActive ? (
-                            <span className="text-success">Active</span>
-                          ) : (
-                            <span className="text-destructive">Inactive</span>
-                          )}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        data-ocid={`profile.apikey.copy.button.${i + 1}`}
-                        onClick={() =>
-                          copyToClipboard(key.name, "API key name")
-                        }
-                        className="shrink-0"
-                      >
-                        <Copy size={13} className="mr-1.5" />
-                        Copy
-                      </Button>
+              </CardHeader>
+              <CardContent className="px-5 pb-5 space-y-4">
+                {!resumeFile ? (
+                  <label
+                    htmlFor="resumeUpload"
+                    data-ocid="profile.resume.dropzone"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDragOver(true);
+                    }}
+                    onDragLeave={() => setIsDragOver(false)}
+                    onDrop={handleResumeDrop}
+                    className={`border-dashed border-2 rounded-lg p-8 text-center cursor-pointer transition-all block ${
+                      isDragOver
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50 hover:bg-muted/30"
+                    }`}
+                  >
+                    <Upload
+                      size={32}
+                      className={`mx-auto mb-3 ${
+                        isDragOver ? "text-primary" : "text-muted-foreground/50"
+                      }`}
+                    />
+                    <p className="text-sm font-medium text-foreground mb-1">
+                      Drag &amp; drop your resume or click to browse
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Supports PDF, DOC, DOCX · Max 5MB
+                    </p>
+                    <input
+                      ref={resumeInputRef}
+                      id="resumeUpload"
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      className="hidden"
+                      onChange={handleResumeInputChange}
+                      data-ocid="profile.resume.upload_button"
+                    />
+                  </label>
+                ) : (
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border border-border">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <FileText size={18} className="text-primary" />
                     </div>
-                  ))}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {resumeFile.name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-xs text-muted-foreground">
+                          {formatFileSize(resumeFile.size)}
+                        </p>
+                        {resumeDate && (
+                          <>
+                            <span className="text-muted-foreground/40 text-xs">
+                              ·
+                            </span>
+                            <p className="text-xs text-muted-foreground">
+                              Updated {resumeDate}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      data-ocid="profile.resume.delete_button"
+                      onClick={() => {
+                        setResumeFile(null);
+                        setResumeDate("");
+                      }}
+                      className="shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label="Remove resume"
+                    >
+                      <X size={15} />
+                    </Button>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="coverLetter" className="text-sm font-medium">
+                    Cover Letter
+                    <span className="text-muted-foreground font-normal ml-1 text-xs">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Textarea
+                    id="coverLetter"
+                    data-ocid="profile.coverletter.textarea"
+                    placeholder="Paste your cover letter or a brief introduction..."
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    rows={4}
+                    className="resize-none"
+                  />
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <ExternalLink size={13} className="text-primary shrink-0" />
+                  <button
+                    type="button"
+                    className="text-sm text-primary hover:underline font-medium"
+                    onClick={() => toast.info("Resume template coming soon!")}
+                  >
+                    Download sample resume template
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Usage Statistics */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.35 }}
+          >
+            <Card className="shadow-card border-border h-full">
+              <CardHeader className="pb-3 px-5 pt-5">
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={15} className="text-primary" />
+                  <CardTitle className="text-sm font-semibold text-foreground">
+                    Usage Statistics
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="px-5 pb-5">
+                <div
+                  className="grid grid-cols-1 gap-4"
+                  data-ocid="profile.stats.panel"
+                >
+                  {statCards.map((stat) => {
+                    const Icon = stat.icon;
+                    return (
+                      <div
+                        key={stat.label}
+                        className="flex items-center gap-4 p-4 rounded-lg bg-muted/50"
+                      >
+                        {statsLoading ? (
+                          <>
+                            <Skeleton className="w-10 h-10 rounded-lg shrink-0" />
+                            <div className="flex-1">
+                              <Skeleton className="h-6 w-16 mb-1" />
+                              <Skeleton className="h-4 w-28" />
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div
+                              className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center shrink-0`}
+                            >
+                              <Icon size={18} className={stat.color} />
+                            </div>
+                            <div>
+                              <p className="text-2xl font-bold text-foreground leading-none">
+                                {stat.value.toString()}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {stat.label}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

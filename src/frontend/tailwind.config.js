@@ -37,11 +37,18 @@ export default {
           border: "oklch(var(--sidebar-border))",
           ring: "oklch(var(--sidebar-ring))",
         },
+        /* ── Brand palette aliases ─────────────────────────────────────── */
+        "brand-bg":     "#0B1220",
+        "brand-card":   "#0F1B2A",
+        "brand-border": "#223046",
+        "brand-cyan":   "#22D3EE",
+        "brand-green":  "#34D399",
+        "brand-purple": "#8B5CF6",
       },
       borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
       boxShadow: {
         xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        card: "0 1px 3px 0 rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.06)",
+        card: "0 1px 3px 0 rgba(0,0,0,0.18), 0 1px 2px -1px rgba(0,0,0,0.14)",
       },
       keyframes: {
         "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },

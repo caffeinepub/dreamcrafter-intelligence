@@ -143,7 +143,6 @@ export default function AnalyticsPage() {
               className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
             >
               <span>Mar 2026</span>
-              <ChevronDown size={14} className="text-indigo-200/60" />
             </button>
           </motion.div>
 

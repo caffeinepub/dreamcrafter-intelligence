@@ -1189,7 +1189,7 @@ function OpenRolesTab({ companyName }: { companyName: string }) {
               </div>
             </div>
             <a
-              href={job.applyLink}
+              href={`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${job.role} ${job.company}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               data-ocid={`company_detail.open_roles.button.${i + 1}`}
