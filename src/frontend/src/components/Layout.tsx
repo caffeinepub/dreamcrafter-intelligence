@@ -32,6 +32,7 @@ const navLinks = [
   { label: "Companies", to: "/companies" },
   { label: "Market Scout", to: "/market-scout" },
   { label: "Scout History", to: "/scout-history" },
+  { label: "API Service", to: "/api-service" },
 ];
 
 const EXACT_ROUTES = [
@@ -44,6 +45,7 @@ const EXACT_ROUTES = [
   "/analytics",
   "/open-roles",
   "/profile",
+  "/api-service",
 ];
 
 function isRouteActive(currentPath: string, to: string): boolean {

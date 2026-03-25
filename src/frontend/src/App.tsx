@@ -14,6 +14,7 @@ import { useUserProfile } from "./hooks/useQueries";
 import AnalysisPathPage from "./pages/AnalysisPath";
 import AnalyticsPage from "./pages/Analytics";
 import ApiKeysPage from "./pages/ApiKeys";
+import ApiServicePage from "./pages/ApiService";
 import CompaniesPage from "./pages/Companies";
 import CompanyDetailPage from "./pages/CompanyDetail";
 import DashboardPage from "./pages/Dashboard";
@@ -33,8 +34,6 @@ function RootComponent() {
   const { isFetching: actorFetching } = useActor();
   const { data: profile, isLoading: profileLoading } = useUserProfile();
   const queryClient = useQueryClient();
-  // Once onboarding completes in this session, never show it again
-  // even if the background refetch briefly returns undefined/null.
   const onboardingDone = useRef(false);
 
   if (isInitializing) {
@@ -52,9 +51,6 @@ function RootComponent() {
     return <LoginPage />;
   }
 
-  // Wait for the actor to finish initializing before checking the profile.
-  // Without this guard, actorFetching=true means useUserProfile has enabled:false,
-  // so profileLoading=false and profile=undefined — wrongly triggering onboarding.
   if (actorFetching) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -77,7 +73,6 @@ function RootComponent() {
     );
   }
 
-  // If backend already has a profile, mark onboarding as done.
   if (profile) {
     onboardingDone.current = true;
   }
@@ -110,6 +105,11 @@ const apiKeysRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/api-keys",
   component: ApiKeysPage,
+});
+const apiServiceRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/api-service",
+  component: ApiServicePage,
 });
 const profileRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -151,6 +151,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   analysisRoute,
   apiKeysRoute,
+  apiServiceRoute,
   profileRoute,
   companiesRoute,
   companyDetailRoute,
