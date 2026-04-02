@@ -24,6 +24,7 @@ import OnboardingPage from "./pages/Onboarding";
 import OpenRolesPage from "./pages/OpenRoles";
 import ProfilePage from "./pages/Profile";
 import ScoutHistoryPage from "./pages/ScoutHistory";
+import SurprisePage from "./pages/Surprise";
 
 const rootRoute = createRootRoute({
   component: RootComponent,
@@ -146,6 +147,11 @@ const openRolesRoute = createRoute({
   path: "/open-roles",
   component: OpenRolesPage,
 });
+const surpriseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/surprise",
+  component: SurprisePage,
+});
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -159,6 +165,7 @@ const routeTree = rootRoute.addChildren([
   analyticsRoute,
   openRolesRoute,
   scoutHistoryRoute,
+  surpriseRoute,
 ]);
 const router = createRouter({ routeTree });
 
